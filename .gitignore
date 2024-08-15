@@ -9,6 +9,9 @@ __pycache__/
 # static files
 static/PDFs/
 
+# data files
+data/
+
 # Distribution / packaging
 .Python
 build/
