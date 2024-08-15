@@ -51,7 +51,7 @@ class User(AbstractUser):
 
 class Candidate(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    resume = models.TextField()
+    resume = models.FileField()
     about = models.TextField(blank=True, null=True)
 
     def __str__(self):
