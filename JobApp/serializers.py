@@ -44,7 +44,7 @@ class IndustrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Industry
-        fields = ['id', 'industry']
+        fields = ['id', 'name']
 
     def get_id(self, obj):
         return obj.id
@@ -163,6 +163,18 @@ class CandidateExperienceSerializer(serializers.ModelSerializer):
         return obj.id
 
 
+class CandidateEducationSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField(read_only=True)
+    candidate = CandidateSerializer(read_only=True)
+
+    class Meta:
+        model = CandidateEducation
+        fields = ['id', 'candidate', 'school_name', 'field_of_study', 'degree']
+
+    def get_id(self, obj):
+        return obj.id
+
+
 class OfferResponseSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField(read_only=True)
     offer = JobOfferSerializer(read_only=True)
@@ -172,7 +184,8 @@ class OfferResponseSerializer(serializers.ModelSerializer):
         model = OfferResponse
         fields = ['id', 'offer', 'candidate']
 
-    def get_id(self, obj):
+    @staticmethod
+    def get_id(obj):
         return obj.id
 
 

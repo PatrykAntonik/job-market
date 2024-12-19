@@ -47,3 +47,16 @@ def getCandidateExperience(request, pk):
         return Response(serializer.data)
     else:
         return Response({'message': 'Candidate experience not found'}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getCandidateEducation(request, pk):
+    if not Candidate.objects.filter(id=pk).exists():
+        return Response({'message': 'Candidate not found'}, status=404)
+    candidate_education = CandidateEducation.objects.filter(candidate_id=pk)
+    if candidate_education.exists():
+        serializer = CandidateExperienceSerializer(candidate_education, many=True)
+        return Response(serializer.data)
+    else:
+        return Response({'message': 'Candidate experience not found'}, status=404)
