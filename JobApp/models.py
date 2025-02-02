@@ -301,6 +301,25 @@ class EmployerBenefit(models.Model):
         return f"{self.employer.company_name} - {self.benefit_name}"
 
 
+class Country(models.Model):
+    """
+    :ivar name: The country associated with the candidate.
+    :type name: CharField
+    """
+    name = models.CharField(max_length=255, unique=True)
+
+
+class City(models.Model):
+    """
+    :ivar name: City as CharField.
+    :type name: CharField
+    :ivar country : Country associated with a city.
+    :type country: Country
+    """
+    name = models.CharField(max_length=255)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+
+
 class EmployerLocation(models.Model):
     """
     Represents the location of an employer.
@@ -308,13 +327,10 @@ class EmployerLocation(models.Model):
     :ivar employer: The employer this location is associated with.
     :type employer: Employer
     :ivar city: The city where the employer is located.
-    :type city: str
-    :ivar country: The country where the employer is located.
-    :type country: str
+    :type city: City
     """
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
-    city = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.employer.company_name} - {self.city}"
@@ -369,11 +385,8 @@ class JobOffer(models.Model):
 class JobOfferSkill(models.Model):
     """
     Represents the relationship between a job offer and a skill.
-
     This model serves as a bridge table to associate specific skills with
-    a given job offer. It tracks which skills are required or relevant for
-    a particular job offer to facilitate skill-based classification or
-    matching of job offers with candidates.
+    a given job offer.
 
     :ivar offer: The job offer to which the skill is associated.
     :type offer: ForeignKey
@@ -390,11 +403,6 @@ class JobOfferSkill(models.Model):
 class OfferResponse(models.Model):
     """
     Represents a response to a job offer by a candidate.
-
-    This class links a job offer and a candidate, allowing the system
-    to track which candidates apply to which job offers. It provides
-    a concise way to represent the application details for easier usage
-    and interaction within the system.
 
     :ivar offer: The job offer to which the candidate has responded.
     :type offer: ForeignKey to JobOffer

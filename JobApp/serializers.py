@@ -50,6 +50,28 @@ class IndustrySerializer(serializers.ModelSerializer):
         return obj.id
 
 
+class CountrySerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Country
+        fields = ['id', 'name']
+
+    def get_id(self, obj):
+        return obj.id
+
+
+class CitySerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = City
+        fields = ['id', 'name', 'country']
+
+    def get_id(self, obj):
+        return obj.id
+
+
 class EmployerSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField(read_only=True)
     user = UserSerializer(read_only=True)

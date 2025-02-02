@@ -1,6 +1,21 @@
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from JobApp.serializers import *
+
+
+@api_view(['GET'])
+def getCountries(request):
+    countries = Country.objects.all()
+    serializer = CountrySerializer(countries, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def getCities(request):
+    cities = City.objects.all()
+    serializer = CitySerializer(cities, many=True)
+    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -35,13 +50,6 @@ def getEmployer(request, pk):
         return Response(serializer.data)
     except Employer.DoesNotExist:
         return Response({'message': 'Employer not found'}, status=404)
-
-
-@api_view(['GET'])
-def getBenefit(request):
-    employer_benefits = EmployerBenefit.objects.all()
-    serializer = EmployerBenefitSerializer(employer_benefits, many=True)
-    return Response(serializer.data)
 
 
 @api_view(['GET'])

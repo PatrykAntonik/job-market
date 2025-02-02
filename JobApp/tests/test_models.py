@@ -216,10 +216,18 @@ def test_job_offer_model():
         description='Test employer',
         industry=Industry.objects.create(name='Test industry')
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+    )
+
     location = EmployerLocation.objects.create(
         employer=employer,
-        city='Test City',
-        country='Test Country',
+        city=city,
     )
     remoteness = RemotenessLevel.objects.create(remote_type='Test type')
     contract = ContractType.objects.create(contract_type='Test type')
@@ -263,11 +271,20 @@ def test_job_offer_skill_model():
         description='Test employer',
         industry=Industry.objects.create(name='Test industry')
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+    )
+
     location = EmployerLocation.objects.create(
         employer=employer,
-        city='Test City',
-        country='Test Country',
+        city=city,
     )
+
     remoteness = RemotenessLevel.objects.create(remote_type='Test type')
     contract = ContractType.objects.create(contract_type='Test type')
     seniority = Seniority.objects.create(seniority_level='Test level')
@@ -368,11 +385,20 @@ def test_offer_response_model(settings, tmp_path):
         description='Test employer',
         industry=Industry.objects.create(name='Test industry')
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+    )
+
     location = EmployerLocation.objects.create(
         employer=employer,
-        city='Test City',
-        country='Test Country',
+        city=city,
     )
+
     remoteness = RemotenessLevel.objects.create(remote_type='Test type')
     contract = ContractType.objects.create(contract_type='Test type')
     seniority = Seniority.objects.create(seniority_level='Test level')
@@ -444,8 +470,16 @@ def test_employer_location_model():
         industry=industry
     )
 
+    country = Country.objects.create(
+        name='Test Country',
+    )
+
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+    )
+
     location = EmployerLocation.objects.create(
         employer=employer,
-        city='Test City',
-        country='Test Country',
+        city=city,
     )
