@@ -4,6 +4,31 @@ from django.db import models
 from phone_field import PhoneField
 
 
+class Country(models.Model):
+    """
+    :ivar name: The country associated with the candidate.
+    :type name: CharField
+    """
+    name = models.CharField(max_length=255, unique=True)
+
+
+class City(models.Model):
+    """
+    :ivar name: City as CharField.
+    :type name: CharField
+    :ivar province: Province as CharField.
+    :type province: CharField
+    :ivar zip_code: Zip code as CharField.
+    :type zip_code: CharField
+    :ivar country : Country associated with a city.
+    :type country: Country
+    """
+    name = models.CharField(max_length=255)
+    province = models.CharField(max_length=255)
+    zip_code = models.CharField(max_length=255)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+
+
 class User(AbstractUser):
     """
      Represents a user that extends the default Django AbstractUser with additional attributes.
@@ -12,49 +37,26 @@ class User(AbstractUser):
 
      :ivar username: The username of the user. Must be unique.
      :type username: str
-     :ivar first_name: The first name of the user. Optional.
+     :ivar first_name: The first name of the user.
      :type first_name: str
-     :ivar last_name: The last name of the user. Optional.
+     :ivar last_name: The last name of the user.
      :type last_name: str
-     :ivar email: The email address of the user. Optional.
+     :ivar email: The email address of the user.
      :type email: str
      :ivar password: The hashed password of the user.
      :type password: str
-     :ivar is_staff: Flag indicating whether the user has staff status (can log into admin site). Defaults to False.
-     :type is_staff: bool
-     :ivar is_active: Flag indicating whether the user account is active. Defaults to True.
-     :type is_active: bool
-     :ivar is_superuser: Flag indicating whether the user has all permissions without explicitly being assigned them. Defaults to False.
-     :type is_superuser: bool
-     :ivar last_login: Timestamp of the user's last login. Optional.
-     :type last_login: datetime.datetime or None
-     :ivar date_joined: The date and time the user account was created. Defaults to the current datetime.
-     :type date_joined: datetime.datetime
      :ivar phone_number: The phone number of the user. Must be unique.
      :type phone_number: PhoneField
-     :ivar zip_code: The zip/postal code of the user's address. Optional.
-     :type zip_code: str
-     :ivar city: The city of the user's address. Optional.
-     :type city: str
-     :ivar country: The country of the user's address. Optional.
-     :type country: str
-     :ivar province: The province/state/region of the user's address. Optional.
-     :type province: str
+     :ivar city: The city where the user is located.
+     :type city: ForeignKey
      :ivar is_employer: Flag to indicate if the user is an employer. Defaults to False.
      :type is_employer: bool
      :ivar is_candidate: Flag to indicate if the user is a candidate. Defaults to False.
      :type is_candidate: bool
-     :ivar groups: The groups this user belongs to. Enables group-based permission handling.
-     :type groups: ManyToManyField
-     :ivar user_permissions: Specific permissions for this user. Complements group-based permissions.
-     :type user_permissions: ManyToManyField
      """
 
     phone_number = PhoneField(max_length=255, unique=True)
-    zip_code = models.CharField(max_length=255, blank=True, null=True)
-    city = models.CharField(max_length=255, blank=True, null=True)
-    country = models.CharField(max_length=255, blank=True, null=True)
-    province = models.CharField(max_length=255, blank=True, null=True)
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
     is_employer = models.BooleanField(default=False)
     is_candidate = models.BooleanField(default=False)
 
@@ -299,25 +301,6 @@ class EmployerBenefit(models.Model):
 
     def __str__(self):
         return f"{self.employer.company_name} - {self.benefit_name}"
-
-
-class Country(models.Model):
-    """
-    :ivar name: The country associated with the candidate.
-    :type name: CharField
-    """
-    name = models.CharField(max_length=255, unique=True)
-
-
-class City(models.Model):
-    """
-    :ivar name: City as CharField.
-    :type name: CharField
-    :ivar country : Country associated with a city.
-    :type country: Country
-    """
-    name = models.CharField(max_length=255)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
 
 class EmployerLocation(models.Model):

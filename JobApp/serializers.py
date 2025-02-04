@@ -8,8 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'city', 'zip_code', 'phone_number', 'country', 'province',
-                  'is_staff', 'is_employer', 'is_candidate']
+        fields = ['id', 'first_name', 'last_name', 'email', 'city', 'phone_number', 'is_employer', 'is_candidate']
 
     def get_id(self, obj):
         return obj.id
@@ -66,7 +65,8 @@ class CitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = City
-        fields = ['id', 'name', 'country']
+        # fields = ['id', 'name', 'country', 'province', 'zip_code']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id

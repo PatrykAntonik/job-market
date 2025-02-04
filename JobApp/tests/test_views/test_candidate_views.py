@@ -8,12 +8,22 @@ from rest_framework.test import APIClient
 @pytest.mark.django_db
 def test_get_candidates_success():
     client = APIClient()
+    country = Country.objects.create(
+        name='Test Country',
+    )
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+        province='Test Province',
+        zip_code='12345'
+    )
     employer_user = User.objects.create_user(
         username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True
+        is_employer=True,
+        city=city,
     )
     industry = Industry.objects.create(
         name='Test Industry',
@@ -31,14 +41,16 @@ def test_get_candidates_success():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True
+        is_candidate=True,
+        city=city,
     )
     user2 = User.objects.create_user(
         username='testuser2',
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='012345678900',
-        is_candidate=True
+        is_candidate=True,
+        city=city,
     )
     candidate1 = Candidate.objects.create(
         user=user1,
@@ -61,12 +73,8 @@ def test_get_candidates_success():
                 "first_name": user1.first_name,
                 "last_name": user1.last_name,
                 "email": user1.email,
-                "city": user1.city,
-                "zip_code": user1.zip_code,
+                "city": user1.city.id,
                 "phone_number": user1.phone_number,
-                "country": user1.country,
-                "province": user1.province,
-                "is_staff": user1.is_staff,
                 "is_employer": user1.is_employer,
                 "is_candidate": user1.is_candidate,
             },
@@ -80,12 +88,8 @@ def test_get_candidates_success():
                 "first_name": user2.first_name,
                 "last_name": user2.last_name,
                 "email": user2.email,
-                "city": user2.city,
-                "zip_code": user2.zip_code,
+                "city": user2.city.id,
                 "phone_number": user2.phone_number,
-                "country": user2.country,
-                "province": user2.province,
-                "is_staff": user2.is_staff,
                 "is_employer": user2.is_employer,
                 "is_candidate": user2.is_candidate,
             },

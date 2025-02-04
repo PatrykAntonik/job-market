@@ -32,15 +32,31 @@ def test_get_cities():
     )
     city = City.objects.create(
         name="City1",
-        country=country
+        country=country,
+        province='Province1',
+        zip_code='12345'
     )
     city2 = City.objects.create(
         name="City2",
-        country=country
+        country=country,
+        province='Province1',
+        zip_code='12345'
     )
     expected_data = [
-        {'country': country.id, 'id': city.id, 'name': city.name},
-        {'country': country.id, 'id': city2.id, 'name': city2.name},
+        {
+            'country': country.id,
+            'id': city.id,
+            'name': city.name,
+            'province': city.province,
+            'zip_code': city.zip_code
+        },
+        {
+            'country': country.id,
+            'id': city2.id,
+            'name': city2.name,
+            'province': city2.province,
+            'zip_code': city2.zip_code
+        },
     ]
     response = client.get('/api/employers/cities/')
     assert response.status_code == status.HTTP_200_OK, f"Expected: status code 200, but got: {response.status_code}"
@@ -84,19 +100,30 @@ def test_get_employers_success():
     industry = Industry.objects.create(
         name='Test Industry',
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+        province='Test Province',
+        zip_code='12345'
+    )
     user1 = User.objects.create_user(
         username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True
+        is_employer=True,
+        city=city,
     )
     user2 = User.objects.create_user(
         username='testuser2',
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='01234567890',
-        is_employer=True
+        is_employer=True,
+        city=city,
     )
     employer1 = Employer.objects.create(
         user=user1,
@@ -132,12 +159,8 @@ def test_get_employers_success():
                 "first_name": "",
                 "last_name": "",
                 "email": "test@gmail.com",
-                "city": None,
-                "zip_code": None,
+                "city": user1.city.id,
                 "phone_number": "1234567890",
-                "country": None,
-                "province": None,
-                "is_staff": False,
                 "is_employer": True,
                 "is_candidate": False
             }
@@ -156,12 +179,8 @@ def test_get_employers_success():
                 "first_name": "",
                 "last_name": "",
                 "email": "test2@gmail.com",
-                "city": None,
-                "zip_code": None,
+                "city": user2.city.id,
                 "phone_number": "01234567890",
-                "country": None,
-                "province": None,
-                "is_staff": False,
                 "is_employer": True,
                 "is_candidate": False
             }
@@ -176,12 +195,22 @@ def test_get_employer_success():
     industry = Industry.objects.create(
         name='Test Industry',
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+        province='Test Province',
+        zip_code='12345'
+    )
     user = User.objects.create_user(
         username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True
+        is_employer=True,
+        city=city,
     )
     employer = Employer.objects.create(
         user=user,
@@ -207,12 +236,8 @@ def test_get_employer_success():
             "first_name": "",
             "last_name": "",
             "email": "test@gmail.com",
-            "city": None,
-            "zip_code": None,
+            "city": user.city.id,
             "phone_number": "1234567890",
-            "country": None,
-            "province": None,
-            "is_staff": False,
             "is_employer": True,
             "is_candidate": False
         }
@@ -235,12 +260,22 @@ def test_get_employer_benefits():
     industry = Industry.objects.create(
         name='Test Industry',
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+        province='Test Province',
+        zip_code='12345'
+    )
     user = User.objects.create_user(
         username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True
+        is_employer=True,
+        city=city,
     )
     employer = Employer.objects.create(
         user=user,
@@ -276,12 +311,8 @@ def test_get_employer_benefits():
                     "first_name": "",
                     "last_name": "",
                     "email": "test@gmail.com",
-                    "city": None,
-                    "zip_code": None,
+                    "city": user.city.id,
                     "phone_number": "1234567890",
-                    "country": None,
-                    "province": None,
-                    "is_staff": False,
                     "is_employer": True,
                     "is_candidate": False
                 }
@@ -304,12 +335,8 @@ def test_get_employer_benefits():
                     "first_name": "",
                     "last_name": "",
                     "email": "test@gmail.com",
-                    "city": None,
-                    "zip_code": None,
+                    "city": user.city.id,
                     "phone_number": "1234567890",
-                    "country": None,
-                    "province": None,
-                    "is_staff": False,
                     "is_employer": True,
                     "is_candidate": False
                 }
@@ -326,12 +353,22 @@ def test_get_employer_with_no_benefits():
     industry = Industry.objects.create(
         name='Test Industry',
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+        province='Test Province',
+        zip_code='12345'
+    )
     user = User.objects.create_user(
         username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True
+        is_employer=True,
+        city=city,
     )
     employer = Employer.objects.create(
         user=user,
@@ -354,12 +391,28 @@ def test_employer_locations():
     industry = Industry.objects.create(
         name='Test Industry',
     )
+    country = Country.objects.create(
+        name='Test Country',
+    )
+    city = City.objects.create(
+        name='Test City',
+        country=country,
+        province='Test Province',
+        zip_code='12345'
+    )
+    city2 = City.objects.create(
+        name='Test City2',
+        country=country,
+        province='Test Province',
+        zip_code='12345'
+    )
     user = User.objects.create_user(
         username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True
+        is_employer=True,
+        city=city,
     )
     employer = Employer.objects.create(
         user=user,
@@ -367,17 +420,6 @@ def test_employer_locations():
         website_url='www.test.com',
         description='Test employer',
         industry=industry
-    )
-    country = Country.objects.create(
-        name='Test Country',
-    )
-    city = City.objects.create(
-        name='Test City',
-        country=country,
-    )
-    city2 = City.objects.create(
-        name='Test City2',
-        country=country,
     )
     employer_location = EmployerLocation.objects.create(
         employer=employer,
@@ -404,12 +446,8 @@ def test_employer_locations():
                     "first_name": "",
                     "last_name": "",
                     "email": "test@gmail.com",
-                    "city": None,
-                    "zip_code": None,
+                    "city": user.city.id,
                     "phone_number": "1234567890",
-                    "country": None,
-                    "province": None,
-                    "is_staff": False,
                     "is_employer": True,
                     "is_candidate": False
                 }
@@ -432,12 +470,8 @@ def test_employer_locations():
                     "first_name": "",
                     "last_name": "",
                     "email": "test@gmail.com",
-                    "city": None,
-                    "zip_code": None,
+                    "city": user.city.id,
                     "phone_number": "1234567890",
-                    "country": None,
-                    "province": None,
-                    "is_staff": False,
                     "is_employer": True,
                     "is_candidate": False
                 }
