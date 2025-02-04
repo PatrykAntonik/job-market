@@ -2,10 +2,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from JobApp.serializers import *
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from JobApp.permissions import IsEmployer
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsEmployer])
 def getCandidates(request):
     candidates = Candidate.objects.all()
     serializer = CandidateSerializer(candidates, many=True)
