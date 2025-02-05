@@ -280,11 +280,20 @@ class CandidateEducation(models.Model):
     :type field_of_study: CharField
     :ivar degree: The degree or qualification obtained by the candidate.
     :type degree: CharField
+    :ivar date_from: The starting date of the candidate's education.
+    :type date_from: DateField
+    :ivar date_to: The ending date of the candidate's education. Can be `None` if the candidate is currently enrolled.
+    :type date_to: DateField
+    :ivar is_current: Indicates whether the candidate is currently enrolled in this educational program.
+    :type is_current: BooleanField
     """
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     school_name = models.CharField(max_length=255)
     field_of_study = models.CharField(max_length=255)
     degree = models.CharField(max_length=255)
+    date_from = models.DateField()
+    date_to = models.DateField(blank=True, null=True)
+    is_current = models.BooleanField()
 
 
 class EmployerBenefit(models.Model):

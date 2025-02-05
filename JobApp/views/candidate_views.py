@@ -14,7 +14,7 @@ def getCandidates(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsEmployer])
 def getCandidate(request, pk):
     try:
         candidate = Candidate.objects.get(id=pk)
@@ -25,11 +25,11 @@ def getCandidate(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsEmployer])
 def getCandidateSkills(request, pk):
     if not Candidate.objects.filter(id=pk).exists():
         return Response({'message': 'Candidate not found.'}, status=404)
-    candidate_skills = CandidateSkill.objects.filter(skill_id=pk)
+    candidate_skills = CandidateSkill.objects.filter(candidate_id=pk)
     if candidate_skills.exists():
         serializer = CandidateSkillSerializer(candidate_skills, many=True)
         return Response(serializer.data)
@@ -38,7 +38,7 @@ def getCandidateSkills(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsEmployer])
 def getCandidateExperience(request, pk):
     if not Candidate.objects.filter(id=pk).exists():
         return Response({'message': 'Candidate not found'}, status=404)
@@ -51,13 +51,13 @@ def getCandidateExperience(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsEmployer])
 def getCandidateEducation(request, pk):
     if not Candidate.objects.filter(id=pk).exists():
         return Response({'message': 'Candidate not found'}, status=404)
     candidate_education = CandidateEducation.objects.filter(candidate_id=pk)
     if candidate_education.exists():
-        serializer = CandidateExperienceSerializer(candidate_education, many=True)
+        serializer = CandidateEducationSerializer(candidate_education, many=True)
         return Response(serializer.data)
     else:
-        return Response({'message': 'Candidate experience not found'}, status=404)
+        return Response({'message': 'Candidate education not found'}, status=404)

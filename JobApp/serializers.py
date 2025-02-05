@@ -90,7 +90,7 @@ class SkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Skill
-        fields = ['id', 'skill']
+        fields = ['id', 'name']
 
     def get_id(self, obj):
         return obj.id
@@ -191,7 +191,8 @@ class CandidateEducationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CandidateEducation
-        fields = ['id', 'candidate', 'school_name', 'field_of_study', 'degree']
+        # fields = ['id', 'candidate', 'school_name', 'field_of_study', 'degree']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id

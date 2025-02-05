@@ -1,3 +1,4 @@
+from rest_framework import exceptions
 from rest_framework.permissions import BasePermission
 
 
@@ -8,9 +9,11 @@ class IsEmployer(BasePermission):
     message = "Access restricted to employers only."
 
     def has_permission(self, request, view):
-        return bool(
-            request.user and
-            request.user.is_authenticated and
-            request.user.is_employer and
-            hasattr(request.user, 'employer')
-        )
+        if (
+                request.user and
+                request.user.is_authenticated and
+                request.user.is_employer and
+                hasattr(request.user, 'employer')):
+            return True
+
+        raise exceptions.PermissionDenied(self.message)
