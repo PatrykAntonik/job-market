@@ -58,15 +58,3 @@ def getEmployerJobOffers(request, pk):
         return Response(serializer.data)
     else:
         return Response({'message': 'Job offers not found for this employer'}, status=404)
-
-
-@api_view(['GET'])
-def getJobOfferSkills(request, pk):
-    if not JobOffer.objects.filter(id=pk).exists():
-        return Response({'message': 'Job offer not found'}, status=404)
-    job_offer_skills = JobOfferSkill.objects.filter(offer=pk)
-    if job_offer_skills.exists():
-        serializer = JobOfferSkillSerializer(job_offer_skills, many=True)
-        return Response(serializer.data)
-    else:
-        return Response({'message': 'No listed skills found for this job offer'}, status=404)
