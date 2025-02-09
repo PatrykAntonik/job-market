@@ -10,6 +10,7 @@ from django.db import IntegrityError
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'
     def validate(self, attrs):
         data = super().validate(attrs)
         serializer = UserSerializerToken(self.user).data

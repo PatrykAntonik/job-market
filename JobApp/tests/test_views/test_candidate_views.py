@@ -18,7 +18,6 @@ def test_get_candidates_success():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -37,7 +36,6 @@ def test_get_candidates_success():
     )
     client.force_authenticate(user=employer_user)
     user1 = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -45,7 +43,6 @@ def test_get_candidates_success():
         city=city,
     )
     user2 = User.objects.create_user(
-        username='testuser2',
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='012345678900',
@@ -113,7 +110,6 @@ def test_get_candidates_without_permission():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -140,7 +136,6 @@ def test_get_candidate_success():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -160,7 +155,6 @@ def test_get_candidate_success():
     client.force_authenticate(user=employer_user)
 
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -205,7 +199,6 @@ def test_get_candidate_not_found():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -242,7 +235,6 @@ def test_get_candidate_without_permission():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -274,7 +266,6 @@ def test_get_candidate_skills_success():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -294,7 +285,6 @@ def test_get_candidate_skills_success():
     client.force_authenticate(user=employer_user)
 
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -388,7 +378,6 @@ def test_get_candidate_skills_not_found():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -408,7 +397,6 @@ def test_get_candidate_skills_not_found():
     client.force_authenticate(user=employer_user)
 
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -441,7 +429,6 @@ def test_get_candidate_skills_without_permission():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -473,7 +460,6 @@ def test_get_candidate_experience_success():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -493,7 +479,6 @@ def test_get_candidate_experience_success():
     client.force_authenticate(user=employer_user)
 
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -595,7 +580,6 @@ def test_get_candidate_experience_not_found():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -615,7 +599,6 @@ def test_get_candidate_experience_not_found():
     client.force_authenticate(user=employer_user)
 
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -648,7 +631,6 @@ def test_get_candidate_experience_without_permission():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -680,7 +662,6 @@ def test_get_candidate_education_success():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -700,7 +681,6 @@ def test_get_candidate_education_success():
     client.force_authenticate(user=employer_user)
 
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -802,7 +782,6 @@ def test_get_candidate_education_not_found():
         zip_code='12345'
     )
     employer_user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -822,7 +801,6 @@ def test_get_candidate_education_not_found():
     client.force_authenticate(user=employer_user)
 
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -855,7 +833,6 @@ def test_get_candidate_education_without_permission():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser1',
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',

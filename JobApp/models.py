@@ -1,7 +1,10 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.fields import CharField
 from phone_field import PhoneField
+from .managers import CustomUserManager
 
 
 class Country(models.Model):
@@ -29,7 +32,7 @@ class City(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
 
-class User(AbstractUser):
+class User(AbstractBaseUser, PermissionsMixin):
     """
      Represents a user that extends the default Django AbstractUser with additional attributes.
 
@@ -55,46 +58,24 @@ class User(AbstractUser):
      :type is_candidate: bool
      """
 
+    first_name = CharField(max_length=50, blank=True)
+    last_name = CharField(max_length=50, blank=True)
+    email = models.EmailField(max_length=255, unique=True)
     phone_number = PhoneField(max_length=255, unique=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, null=True)
+    is_staff = models.BooleanField(default=False)
     is_employer = models.BooleanField(default=False)
     is_candidate = models.BooleanField(default=False)
 
-    # groups = models.ManyToManyField(
-    #     'auth.Group',
-    #     verbose_name='groups',
-    #     blank=True,
-    #     help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-    #     related_name="%(app_label)s_%(class)s_related",
-    #     related_query_name="user",
-    # )
-    # user_permissions = models.ManyToManyField(
-    #     'auth.Permission',
-    #     verbose_name='user permissions',
-    #     blank=True,
-    #     help_text='Specific permissions for this user.',
-    #     related_name="%(app_label)s_%(class)s_related",
-    #     related_query_name="user",
-    # )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
-    # class Meta:
-    #     permissions = [
-    #         ("can_view_candidates", "Can view candidates"),
-    #         ("can_view_employers", "Can view employers"),
-    #         ("can_view_job_offers", "Can view job offers"),
-    #         ("can_view_skills", "Can view skills"),
-    #         ("can_view_contract_types", "Can view contract types"),
-    #         ("can_view_remoteness_levels", "Can view remoteness levels"),
-    #         ("can_view_candidate_experiences", "Can view candidate experiences"),
-    #         ("can_view_offer_responses", "Can view offer responses"),
-    #         ("can_view_employer_benefits", "Can view employer benefits"),
-    #         ("can_view_employer_locations", "Can view employer locations"),
-    #     ]
+    objects = CustomUserManager()
 
     def __str__(self):
         if self.first_name and self.last_name:
             return self.first_name + " " + self.last_name
-        return self.username
+        return self.email
 
 
 class Candidate(models.Model):

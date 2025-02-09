@@ -95,7 +95,6 @@ def test_get_job_offers():
     contract = ContractType.objects.create(name='B2B')
     seniority = Seniority.objects.create(name='Junior')
     user1 = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -103,7 +102,6 @@ def test_get_job_offers():
         city=city,
     )
     user2 = User.objects.create_user(
-        username='testuser2',
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
@@ -247,7 +245,6 @@ def test_get_job_offer_success():
     contract = ContractType.objects.create(name='B2B')
     seniority = Seniority.objects.create(name='Junior')
     user1 = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -351,7 +348,6 @@ def test_get_employer_job_offers_success():
     contract = ContractType.objects.create(name='B2B')
     seniority = Seniority.objects.create(name='Junior')
     user1 = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',

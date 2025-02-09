@@ -110,7 +110,6 @@ def test_get_employers_success():
         zip_code='12345'
     )
     user1 = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -118,7 +117,6 @@ def test_get_employers_success():
         city=city,
     )
     user2 = User.objects.create_user(
-        username='testuser2',
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='01234567890',
@@ -205,7 +203,6 @@ def test_get_employer_success():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -270,7 +267,6 @@ def test_get_employer_benefits():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -363,7 +359,6 @@ def test_get_employer_with_no_benefits():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
@@ -407,7 +402,6 @@ def test_employer_locations():
         zip_code='12345'
     )
     user = User.objects.create_user(
-        username='testuser',
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',

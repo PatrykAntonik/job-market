@@ -11,7 +11,6 @@ def test_login_view_success():
     country = Country.objects.create(name='TestCountry')
     city = City.objects.create(name='TestCity', country=country, zip_code='12345', province='TestProvince')
     user = User.objects.create_user(
-        username='testUser',
         email='test@test.com',
         password='testPassword',
         is_candidate=True,
@@ -23,7 +22,7 @@ def test_login_view_success():
     response = client.post(
         '/api/users/login/',
         {
-            'username': user.username,
+            'email': user.email,
             'password': 'testPassword'
         },
         format='json'
@@ -41,7 +40,7 @@ def test_login_view_success():
     response = client.post(
         '/api/users/login/',
         {
-            'username': 'userName',
+            'email': 'email',
             'password': 'testPassword'
         },
         format='json'
