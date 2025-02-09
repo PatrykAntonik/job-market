@@ -54,7 +54,8 @@ class CountrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Country
-        fields = ['id', 'name']
+        #fields = ['id', 'name']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -90,7 +91,8 @@ class SkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Skill
-        fields = ['id', 'name']
+        #fields = ['id', 'name']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -103,7 +105,8 @@ class CandidateSkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CandidateSkill
-        fields = ['id', 'candidate', 'skill']
+        #fields = ['id', 'candidate', 'skill']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -114,7 +117,8 @@ class ContractTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContractType
-        fields = ['id', 'contract_type']
+        #fields = ['id', 'name']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -125,7 +129,8 @@ class RemotenessLevelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RemotenessLevel
-        fields = ['id', 'remote_type']
+        #fields = ['id', 'remote_type']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -136,7 +141,8 @@ class SenioritySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Seniority
-        fields = ['id', 'seniority_level']
+        #fields = ['id', 'seniority_level']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -152,8 +158,9 @@ class JobOfferSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JobOffer
-        fields = ['id', 'employer', 'description', 'city', 'remoteness', 'seniority', 'position',
-                  'wage', 'currency', 'skills', 'contract_type']
+        # fields = ['id', 'employer', 'description', 'city', 'remoteness', 'seniority', 'position',
+        #          'wage', 'currency', 'skills', 'contract_type']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -166,7 +173,8 @@ class JobOfferSkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JobOfferSkill
-        fields = ['id', 'offer', 'skill']
+        # fields = ['id', 'offer', 'skill']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -178,8 +186,9 @@ class CandidateExperienceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CandidateExperience
-        fields = ['id', 'candidate', 'company_name', 'job_position', 'date_from', 'date_to', 'description',
-                  'is_current']
+        # fields = ['id', 'candidate', 'company_name', 'job_position', 'date_from', 'date_to', 'description',
+        #         'is_current']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -205,7 +214,8 @@ class OfferResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OfferResponse
-        fields = ['id', 'offer', 'candidate']
+        # fields = ['id', 'offer', 'candidate']
+        fields = '__all__'
 
     @staticmethod
     def get_id(obj):
@@ -218,7 +228,8 @@ class EmployerBenefitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmployerBenefit
-        fields = ['id', 'employer', 'benefit_name']
+        # fields = ['id', 'employer', 'benefit_name']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id
@@ -230,7 +241,8 @@ class EmployerLocationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmployerLocation
-        fields = ['id', 'employer', 'city']
+        # fields = ['id', 'employer', 'city']
+        fields = '__all__'
 
     def get_id(self, obj):
         return obj.id

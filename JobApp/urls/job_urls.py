@@ -7,7 +7,7 @@ urlpatterns = [
     path('remoteness_levels/', getRemotenessLevels, name='remoteness_levels'),
     path('seniority/', getSeniority, name='seniority'),
     path('employer/<int:pk>/', getEmployerJobOffers, name='employer_job_offers'),
-    path('skills/<int:pk>/', getJobOfferSkills, name='job_offer_skills'),
+    path('<int:pk>/skills/', getJobOfferSkills, name='job_offer_skills'),
     path('<int:pk>/', getJobOffer, name='job_offer'),
     path('', getJobOffers, name='job_offers'),
 ]

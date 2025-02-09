@@ -199,39 +199,39 @@ class ContractType(models.Model):
     """
     Represents a contract type within the system.
 
-    :ivar contract_type: The type of contract.
-    :type contract_type: str
+    :ivar name: The type of contract.
+    :type name: str
     """
-    contract_type = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.contract_type
+        return self.name
 
 
 class RemotenessLevel(models.Model):
     """
     Represents a level of job remoteness with a classification for remote types.
 
-    :ivar remote_type: The type of job remoteness type.
-    :type remote_type: str
+    :ivar name: The type of job remoteness type.
+    :type name: str
     """
-    remote_type = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.remote_type
+        return self.name
 
 
 class Seniority(models.Model):
     """
     Represents the seniority level as part of a model.
 
-    :ivar seniority_level: The level of seniority.
-    :type seniority_level: str
+    :ivar name: The level of seniority.
+    :type name: str
     """
-    seniority_level = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.seniority_level
+        return self.name
 
 
 class CandidateExperience(models.Model):
