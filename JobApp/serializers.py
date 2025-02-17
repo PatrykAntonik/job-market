@@ -16,15 +16,20 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserSerializerToken(UserSerializer):
-    token = serializers.SerializerMethodField(read_only=True)
+    access = serializers.SerializerMethodField(read_only=True)
+    refresh = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'token']
+        fields = ['id', 'email', 'refresh', 'access']
 
-    def get_token(self, obj):
+    def get_access(self, obj):
         token = RefreshToken.for_user(obj)
         return str(token.access_token)
+
+    def get_refresh(self, obj):
+        token = RefreshToken.for_user(obj)
+        return str(token)
 
 
 class CandidateSerializer(serializers.ModelSerializer):

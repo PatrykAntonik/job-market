@@ -7,10 +7,12 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from django.db import IntegrityError
+from JobApp.permissions import IsEmployer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
+
     def validate(self, attrs):
         data = super().validate(attrs)
         serializer = UserSerializerToken(self.user).data
@@ -23,63 +25,45 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-# USERS
 @api_view(['POST'])
 def registerUser(request):
     data = request.data
     try:
+        city_data = data.get('city')
+        if isinstance(city_data, dict):
+            city_id = city_data.get('id')
+        else:
+            city_id = city_data
         user = User.objects.create(
-            username=data['email'],
-            email=data['email'],
-            password=make_password(data['password']),
             first_name=data.get('first_name', ''),
             last_name=data.get('last_name', ''),
-            city=data['city'],
-            zip_code=data['zip_code'],
+            email=data['email'],
+            password=make_password(data['password']),
             phone_number=data['phone_number'],
-            country=data['country'],
-            province=data['province'],
+            city_id=city_id,
             is_employer=data.get('is_employer', False),
             is_candidate=data.get('is_candidate', False),
         )
         serializer = UserSerializerToken(user, many=False)
-        return Response(serializer.data)
+        return Response(serializer.data, status=201)
     except IntegrityError as e:
         if 'UNIQUE constraint failed' in str(e):
-            message = {'detail': 'User with this email already exists'}
-            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'User with this email already exists'}, status=400)
         else:
-            message = {'detail': str(e)}
-            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': str(e)}, status=400)
     except Exception as e:
-        message = {'detail': str(e)}
-        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserProfile(request):
-    user = request.user
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
-
-
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def updateUserProfile(request):
-    user = request.user
-    data = request.data
-    user.first_name = data.get('first_name', user.first_name)
-    user.last_name = data.get('last_name', user.last_name)
-    user.email = data.get('email', user.email)
-    user.city = data.get('city', user.city)
-    user.zip_code = data.get('zip_code', user.zip_code)
-    user.phone_number = data.get('phone_number', user.phone_number)
-    user.country = data.get('country', user.country)
-    user.province = data.get('province', user.province)
-    user.save()
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+    try:
+        user = request.user
+        serializer = UserSerializer(user, many=False)
+        return Response(serializer.data)
+    except User.DoesNotExist:
+        return Response({'message': 'User not found'}, status=404)
 
 
 @api_view(['GET'])
@@ -103,21 +87,51 @@ def getUser(request, pk):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def updateUser(request):
+def updateUserProfile(request):
     user = request.user
-    serializer = UserSerializerToken(user, many=False)
     data = request.data
+    city_data = data.get('city')
+    if city_data is not None:
+        if isinstance(city_data, dict):
+            city_id = city_data.get('id')
+        else:
+            city_id = city_data
+        user.city_id = city_id
     user.first_name = data.get('first_name', user.first_name)
     user.last_name = data.get('last_name', user.last_name)
     user.email = data.get('email', user.email)
-    user.city = data.get('city', user.city)
-    user.zip_code = data.get('zip_code', user.zip_code)
     user.phone_number = data.get('phone_number', user.phone_number)
-    user.country = data.get('country', user.country)
-    user.province = data.get('province', user.province)
-    user.is_employer = data.get('is_employer', user.is_employer)
-    user.is_candidate = data.get('is_candidate', user.is_candidate)
-    if data['password'] != '':
-        user.password = make_password(data['password'])
+    try:
+        user.save()
+    except Exception as e:
+        if 'UNIQUE constraint failed: JobApp_user.email' in str(e):
+            return Response({'message': 'This email address is already in use by another account'}, status=400)
+        elif 'UNIQUE constraint failed: JobApp_user.phone_number' in str(e):
+            return Response({'message': 'This phone number is already in use by another account'}, status=400)
+        else:
+            return Response({'message': str(e)}, status=400)
+
+    serializer = UserSerializer(user, many=False)
+    return Response(serializer.data, status=201)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateUserPassword(request):
+    user = request.user
+    data = request.data
+
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+    confirm_password = data.get('confirm_password')
+
+    if not user.check_password(old_password):
+        return Response({'message': 'Old password is incorrect'}, status=400)
+
+    if new_password != confirm_password:
+        return Response({'message': 'New passwords do not match'}, status=400)
+
+    user.set_password(new_password)
     user.save()
-    return Response(serializer.data)
+
+    return Response({'message': 'Password updated successfully'}, status=201)

@@ -38,8 +38,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
      Is a base model for employer and candidate. Collects columns common for Candidate and Employer models.
 
-     :ivar username: The username of the user. Must be unique.
-     :type username: str
      :ivar first_name: The first name of the user.
      :type first_name: str
      :ivar last_name: The last name of the user.
