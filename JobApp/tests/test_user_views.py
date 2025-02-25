@@ -1,6 +1,6 @@
 import pytest
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED, \
-    HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+    HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 from JobApp.views.user_views import *
 from rest_framework.test import APIClient
 
@@ -359,7 +359,7 @@ def test_update_user_profile_success():
         'city': new_city.id
     }
     response = client.put(
-        '/api/users/profile/update/',
+        '/api/users/profile/',
         data,
         format='json'
     )
@@ -413,7 +413,7 @@ def test_update_user_profile_unique_email_fail():
         'city': user.city.id
     }
     response = client.put(
-        '/api/users/profile/update/',
+        '/api/users/profile/',
         data,
         format='json'
     )
@@ -460,7 +460,7 @@ def test_update_user_profile_unique_phone_fail():
         'city': user.city.id
     }
     response = client.put(
-        '/api/users/profile/update/',
+        '/api/users/profile/',
         data,
         format='json'
     )
@@ -498,7 +498,7 @@ def test_update_user_profile_unauthenticated():
         'city': user.city.id
     }
     response = client.put(
-        '/api/users/profile/update/',
+        '/api/users/profile/',
         data,
         format='json'
     )
@@ -534,7 +534,7 @@ def test_update_user_password_success():
         'confirm_password': 'newPassword'
     }
     response = client.put(
-        '/api/users/profile/update/password/',
+        '/api/users/profile/password/',
         data,
         format='json'
     )
@@ -570,7 +570,7 @@ def test_update_user_password_wrong_old_password():
         'confirm_password': 'newPassword'
     }
     response = client.put(
-        '/api/users/profile/update/password/',
+        '/api/users/profile/password/',
         data,
         format='json'
     )
@@ -606,7 +606,7 @@ def test_update_user_password_mismatched_confirm_new_password():
         'confirm_password': 'wrong_newPassword'
     }
     response = client.put(
-        '/api/users/profile/update/password/',
+        '/api/users/profile/password/',
         data,
         format='json'
     )
@@ -615,3 +615,57 @@ def test_update_user_password_mismatched_confirm_new_password():
     }
     assert response.status_code == HTTP_400_BAD_REQUEST, f'Expected status code to be 400, but got {response.status_code}'
     assert response.json() == expected_data, f'Expected  {expected_data}, but got {response.json()}'
+
+
+@pytest.mark.django_db
+def test_delete_user_success():
+    client = APIClient()
+    country = Country.objects.create(name='country')
+    city = City.objects.create(
+        country=country,
+        name='city name',
+        province='province name',
+        zip_code='43-300'
+    )
+    user = User.objects.create_user(
+        first_name='name',
+        last_name='surname',
+        email='test@test.com',
+        password='password',
+        phone_number='123456789',
+        city=city
+    )
+    client.force_authenticate(user=user)
+    response = client.delete(
+        '/api/users/profile/',
+        data={'password': 'password'},
+        format='json'
+    )
+    assert response.status_code == HTTP_204_NO_CONTENT, f'Expected status code to be 204, but got {response.status_code}'
+
+
+@pytest.mark.django_db
+def test_delete_user_unauthenticated():
+    client = APIClient()
+    country = Country.objects.create(name='country')
+    city = City.objects.create(
+        country=country,
+        name='city name',
+        province='province name',
+        zip_code='43-300'
+    )
+    user = User.objects.create_user(
+        first_name='name',
+        last_name='surname',
+        email='test@test.com',
+        password='password',
+        phone_number='123456789',
+        city=city
+    )
+    client.force_authenticate(user=user)
+    response = client.delete(
+        '/api/users/profile/',
+        data={'password': 'wrong_password'},
+        format='json'
+    )
+    assert response.status_code == HTTP_400_BAD_REQUEST, f'Expected status code to be 400, but got {response.status_code}'

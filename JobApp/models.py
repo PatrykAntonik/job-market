@@ -15,6 +15,10 @@ class Country(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
 
+    def __str__(self):
+        return self.name
+
+
 class City(models.Model):
     """
     :ivar name: City as CharField.
@@ -28,8 +32,11 @@ class City(models.Model):
     """
     name = models.CharField(max_length=255)
     province = models.CharField(max_length=255)
-    zip_code = models.CharField(max_length=255)
+    zip_code = models.CharField(max_length=255, blank=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class User(AbstractBaseUser, PermissionsMixin):

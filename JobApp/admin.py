@@ -29,6 +29,8 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(Candidate)
+admin.site.register(City)
+admin.site.register(Country)
 admin.site.register(Employer)
 admin.site.register(Skill)
 admin.site.register(CandidateSkill)
