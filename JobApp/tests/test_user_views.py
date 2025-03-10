@@ -264,38 +264,43 @@ def test_get_users_success():
     )
     client.force_authenticate(user=user)
     response = client.get('/api/users/')
-    expected_data = [
-        {
-            'id': user.id,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'phone_number': user.phone_number,
-            'city': user.city.id,
-            'is_employer': user.is_employer,
-            'is_candidate': user.is_candidate,
-        },
-        {
-            'id': user_1.id,
-            'first_name': user_1.first_name,
-            'last_name': user_1.last_name,
-            'email': user_1.email,
-            'phone_number': user_1.phone_number,
-            'city': user_1.city.id,
-            'is_employer': user_1.is_employer,
-            'is_candidate': user_1.is_candidate,
-        },
-        {
-            'id': user_2.id,
-            'first_name': user_2.first_name,
-            'last_name': user_2.last_name,
-            'email': user_2.email,
-            'phone_number': user_2.phone_number,
-            'city': user_2.city.id,
-            'is_employer': user_2.is_employer,
-            'is_candidate': user_2.is_candidate,
-        },
-    ]
+    expected_data = {
+        'count': 3,
+        'next': None,
+        'previous': None,
+        'results': [
+            {
+                'id': user.id,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'phone_number': user.phone_number,
+                'city': user.city.id,
+                'is_employer': user.is_employer,
+                'is_candidate': user.is_candidate,
+            },
+            {
+                'id': user_1.id,
+                'first_name': user_1.first_name,
+                'last_name': user_1.last_name,
+                'email': user_1.email,
+                'phone_number': user_1.phone_number,
+                'city': user_1.city.id,
+                'is_employer': user_1.is_employer,
+                'is_candidate': user_1.is_candidate,
+            },
+            {
+                'id': user_2.id,
+                'first_name': user_2.first_name,
+                'last_name': user_2.last_name,
+                'email': user_2.email,
+                'phone_number': user_2.phone_number,
+                'city': user_2.city.id,
+                'is_employer': user_2.is_employer,
+                'is_candidate': user_2.is_candidate,
+            },
+        ],
+    }
     assert response.status_code == HTTP_200_OK, f'Expected status code 200, got {response.status_code}'
     assert response.json() == expected_data, f'Expected {expected_data}, but got {response.json()}'
 

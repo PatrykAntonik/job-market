@@ -12,6 +12,7 @@ from JobApp.permissions import IsEmployer
 from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from JobApp.pagination import OptionalPagination
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -37,6 +38,7 @@ class UserListView(generics.ListAPIView):
     filterset_fields = ['city', 'city__country', 'is_employer', 'is_candidate']
     search_fields = ['first_name', 'last_name', 'email']
     ordering_fields = ['city']
+    pagination_class = OptionalPagination
 
 
 class UserProfileView(APIView):

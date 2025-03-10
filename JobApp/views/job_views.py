@@ -1,6 +1,10 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from JobApp.serializers import *
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from JobApp.pagination import OptionalPagination
+from rest_framework import generics
 
 
 @api_view(['GET'])
@@ -36,6 +40,16 @@ def getJobOffers(request):
     job_offers = JobOffer.objects.all()
     serializer = JobOfferSerializer(job_offers, many=True)
     return Response(serializer.data)
+
+
+class JobOfferList(generics.ListCreateAPIView):
+    queryset = JobOffer.objects.all()
+    serializer_class = JobOfferSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['contract_type', 'remoteness_level', 'seniority', 'skills', 'wage', 'position']
+    search_fields = ['title', 'description', '']
+    ordering_fields = ['created_at']
+    pagination_class = OptionalPagination
 
 
 @api_view(['GET'])
