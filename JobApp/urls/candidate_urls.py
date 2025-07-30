@@ -6,5 +6,5 @@ urlpatterns = [
     path('<int:pk>/experience/', getCandidateExperience, name="candidate_experience"),
     path('<int:pk>/education/', getCandidateEducation, name="candidate_education"),
     path('<int:pk>/', getCandidate, name="candidate"),
-    path('', getCandidates, name="candidates"),
+    path('', CandidateListView.as_view(), name="candidates"),
 ]

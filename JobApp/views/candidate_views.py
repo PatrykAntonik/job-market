@@ -3,25 +3,21 @@ from rest_framework.response import Response
 from JobApp.serializers import *
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from JobApp.permissions import IsEmployer
-# from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, filters
+from JobApp.models import *
 
 
-@api_view(['GET'])
-@permission_classes([IsEmployer])
-def getCandidates(request):
-    candidates = Candidate.objects.all()
-    serializer = CandidateSerializer(candidates, many=True)
-    return Response(serializer.data)
+class CandidateListView(generics.ListAPIView):
+    queryset = Candidate.objects.all()
+    serializer_class = CandidateSerializer
+    permission_classes = [IsEmployer]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['user__city', 'user__city__country', 'candidateskill__skill']
+    search_fields = ['user__first_name', 'user__last_name', 'user__email']
+    ordering_fields = ['user__city__name']
 
 
-# class CandidateListView(generics.ListAPIView):
-#     queryset = Candidate.objects.all()
-#     serializer_class = CandidateSerializer
-#     permission_classes = [IsEmployer]
-    # filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    # filterset_fields = ['user__city', 'user__city__country', 'candidateskill__skill']
-    # search_fields = ['user__first_name', 'user__last_name', 'user__email']
-    # ordering_fields = ['user__city__name']
 
 
 @api_view(['GET'])
