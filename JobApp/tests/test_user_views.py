@@ -162,7 +162,7 @@ def test_get_user_not_found():
 
     client.force_authenticate(user=user)
     expected_data = {
-        'message': 'User not found'
+        'detail': 'No User matches the given query.'
     }
     response = client.get(f'/api/users/{user.id + 1}/')
     assert response.status_code == HTTP_404_NOT_FOUND, f"Expected status code 404, got {response.status_code}"
@@ -378,7 +378,7 @@ def test_update_user_profile_success():
         'is_employer': user.is_employer,
         'is_candidate': user.is_candidate,
     }
-    assert response.status_code == HTTP_201_CREATED, f'Expected status code to be 201, but got {response.status_code}'
+    assert response.status_code == HTTP_200_OK, f'Expected status code to be 200, but got {response.status_code}'
     assert response.json() == expected_data, f'Expected  {expected_data}, but got {response.json()}'
 
 
@@ -546,7 +546,7 @@ def test_update_user_password_success():
     expected_data = {
         'message': 'Password updated successfully'
     }
-    assert response.status_code == HTTP_201_CREATED, f'Expected status code to be 201, but got {response.status_code}'
+    assert response.status_code == HTTP_200_OK, f'Expected status code to be 200, but got {response.status_code}'
     assert response.json() == expected_data, f'Expected  {expected_data}, but got {response.json()}'
 
 

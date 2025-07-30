@@ -20,9 +20,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        serializer = UserSerializerToken(self.user).data
-        for i, j in serializer.items():
-            data[i] = j
+        serializer = UserSerializerToken(self.user)
+        data.update(serializer.data)
         return data
 
 
@@ -45,12 +44,9 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            user = request.user
-            serializer = UserSerializer(user, many=False)
-            return Response(serializer.data)
-        except User.DoesNotExist:
-            return Response({'message': 'User not found'}, status=404)
+        user = request.user
+        serializer = UserSerializer(user, many=False)
+        return Response(serializer.data)
 
     def put(self, request):
         user = request.user
@@ -77,7 +73,7 @@ class UserProfileView(APIView):
                 return Response({'message': str(e)}, status=400)
 
         serializer = UserSerializer(user, many=False)
-        return Response(serializer.data, status=201)
+        return Response(serializer.data, status=200)
 
     def delete(self, request):
         user = request.user
@@ -88,64 +84,60 @@ class UserProfileView(APIView):
         return Response(status=204)
 
 
-@api_view(['POST'])
-def registerUser(request):
-    data = request.data
-    try:
-        city_data = data.get('city')
-        if isinstance(city_data, dict):
-            city_id = city_data.get('id')
-        else:
-            city_id = city_data
-        user = User.objects.create(
-            first_name=data.get('first_name', ''),
-            last_name=data.get('last_name', ''),
-            email=data['email'],
-            password=make_password(data['password']),
-            phone_number=data['phone_number'],
-            city_id=city_id,
-            is_employer=data.get('is_employer', False),
-            is_candidate=data.get('is_candidate', False),
-        )
-        serializer = UserSerializerToken(user, many=False)
-        return Response(serializer.data, status=201)
-    except IntegrityError as e:
-        if 'UNIQUE constraint failed' in str(e):
-            return Response({'message': 'User with this email already exists'}, status=400)
-        else:
-            return Response({'message': str(e)}, status=400)
-    except Exception as e:
-        return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+class RegisterUserView(APIView):
+    def post(self, request):
+        data = request.data
+        try:
+            city_data = data.get('city')
+            if isinstance(city_data, dict):
+                city_id = city_data.get('id')
+            else:
+                city_id = city_data
+            user = User.objects.create(
+                first_name=data.get('first_name', ''),
+                last_name=data.get('last_name', ''),
+                email=data['email'],
+                password=make_password(data['password']),
+                phone_number=data['phone_number'],
+                city_id=city_id,
+                is_employer=data.get('is_employer', False),
+                is_candidate=data.get('is_candidate', False),
+            )
+            serializer = UserSerializerToken(user, many=False)
+            return Response(serializer.data, status=201)
+        except IntegrityError as e:
+            if 'UNIQUE constraint failed' in str(e):
+                return Response({'message': 'User with this email already exists'}, status=400)
+            else:
+                return Response({'message': str(e)}, status=400)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-@permission_classes([IsAdminUser])
-def getUser(request, pk):
-    try:
-        user = User.objects.get(id=pk)
-        serializer = UserSerializer(user, many=False)
-        return Response(serializer.data)
-    except User.DoesNotExist:
-        return Response({'message': 'User not found'}, status=404)
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
 
 
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def updateUserPassword(request):
-    user = request.user
-    data = request.data
+class UpdateUserPasswordView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    old_password = data.get('old_password')
-    new_password = data.get('new_password')
-    confirm_password = data.get('confirm_password')
+    def put(self, request):
+        user = request.user
+        data = request.data
 
-    if not user.check_password(old_password):
-        return Response({'message': 'Old password is incorrect'}, status=400)
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
 
-    if new_password != confirm_password:
-        return Response({'message': 'New passwords do not match'}, status=400)
+        if not user.check_password(old_password):
+            return Response({'message': 'Old password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
 
-    user.set_password(new_password)
-    user.save()
+        if new_password != confirm_password:
+            return Response({'message': 'New passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({'message': 'Password updated successfully'}, status=201)
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)

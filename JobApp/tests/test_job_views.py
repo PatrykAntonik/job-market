@@ -174,6 +174,7 @@ def test_get_job_offers():
                     'name': industry.name,
                 },
                 'description': employer1.description,
+                'benefits': []
             },
             'remoteness': {
                 'id': job_offer_1.remoteness.id,
@@ -212,6 +213,7 @@ def test_get_job_offers():
                     'name': industry.name,
                 },
                 'description': employer2.description,
+                'benefits': []
             },
             'remoteness': {
                 'id': job_offer_2.remoteness.id,
@@ -298,6 +300,7 @@ def test_get_job_offer_success():
                 'name': industry.name,
             },
             'description': employer1.description,
+            'benefits': []
         },
         'remoteness': {
             'id': job_offer_1.remoteness.id,
@@ -409,6 +412,7 @@ def test_get_employer_job_offers_success():
                     'name': industry.name,
                 },
                 'description': employer1.description,
+                'benefits': []
             },
             'remoteness': {
                 'id': job_offer_1.remoteness.id,
@@ -447,6 +451,7 @@ def test_get_employer_job_offers_success():
                     'name': industry.name,
                 },
                 'description': employer1.description,
+            'benefits': []
             },
             'remoteness': {
                 'id': job_offer_2.remoteness.id,

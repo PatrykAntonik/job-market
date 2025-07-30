@@ -1,8 +1,6 @@
-from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models.fields import CharField
 from phone_field import PhoneField
 from .managers import CustomUserManager
 
@@ -13,7 +11,6 @@ class Country(models.Model):
     :type name: CharField
     """
     name = models.CharField(max_length=255, unique=True)
-
 
     def __str__(self):
         return self.name
@@ -63,8 +60,8 @@ class User(AbstractBaseUser, PermissionsMixin):
      :type is_candidate: bool
      """
 
-    first_name = CharField(max_length=50, blank=True)
-    last_name = CharField(max_length=50, blank=True)
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     phone_number = PhoneField(max_length=255, unique=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True)
@@ -142,9 +139,23 @@ class Employer(models.Model):
     website_url = models.URLField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
+    benefits = models.ManyToManyField('Benefit', blank=True)
 
     def __str__(self):
         return self.company_name + " - " + self.industry.name
+
+
+class Benefit(models.Model):
+    """
+    Represents a benefit that can be offered by an employer.
+
+    :ivar name: The unique name of the benefit.
+    :type name: str
+    """
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Skill(models.Model):
@@ -246,7 +257,7 @@ class CandidateExperience(models.Model):
     company_name = models.CharField(max_length=255)
     date_from = models.DateField()
     date_to = models.DateField(blank=True, null=True)
-    is_current = models.BooleanField()
+    is_current = models.BooleanField(default=False)
     job_position = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
@@ -279,23 +290,7 @@ class CandidateEducation(models.Model):
     degree = models.CharField(max_length=255)
     date_from = models.DateField()
     date_to = models.DateField(blank=True, null=True)
-    is_current = models.BooleanField()
-
-
-class EmployerBenefit(models.Model):
-    """
-    Represents the benefits provided by an employer.
-
-    :ivar employer: The employer associated with the benefit.
-    :type employer: Employer
-    :ivar benefit_name: The name of the benefit, which must be unique.
-    :type benefit_name: str
-    """
-    employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
-    benefit_name = models.CharField(max_length=255, unique=True)
-
-    def __str__(self):
-        return f"{self.employer.company_name} - {self.benefit_name}"
+    is_current = models.BooleanField(default=False)
 
 
 class EmployerLocation(models.Model):

@@ -118,7 +118,7 @@ def test_get_candidates_without_permission():
     )
     client.force_authenticate(user=user)
     response = client.get(f'/api/candidates/')
-    expected_data = {'detail': 'Access restricted to employers only.'}
+    expected_data = {'detail': 'Access restricted to employers only'}
     assert response.status_code == HTTP_403_FORBIDDEN, f'Expected status code 403 but got {response.status_code}'
     assert response.json() == expected_data, f'Expected: {expected_data}, but got: {response.json()}'
 
@@ -248,7 +248,7 @@ def test_get_candidate_without_permission():
     )
     client.force_authenticate(user=user)
     response = client.get(f'/api/candidates/{candidate.id}/')
-    expected_data = {'detail': 'Access restricted to employers only.'}
+    expected_data = {'detail': 'Access restricted to employers only'}
     assert response.status_code == HTTP_403_FORBIDDEN, f'Expected status code 403 but got {response.status_code}'
     assert response.json() == expected_data, f'Expected: {expected_data}, but got: {response.json()}'
 
@@ -442,7 +442,7 @@ def test_get_candidate_skills_without_permission():
     )
     client.force_authenticate(user=user)
     response = client.get(f'/api/candidates/{candidate.id}/skills/')
-    expected_data = {'detail': 'Access restricted to employers only.'}
+    expected_data = {'detail': 'Access restricted to employers only'}
     assert response.status_code == HTTP_403_FORBIDDEN, f'Expected status code 403 but got {response.status_code}'
     assert response.json() == expected_data, f'Expected: {expected_data}, but got: {response.json()}'
 
@@ -644,7 +644,7 @@ def test_get_candidate_experience_without_permission():
     )
     client.force_authenticate(user=user)
     response = client.get(f'/api/candidates/{candidate.id}/experience/')
-    expected_data = {'detail': 'Access restricted to employers only.'}
+    expected_data = {'detail': 'Access restricted to employers only'}
     assert response.status_code == HTTP_403_FORBIDDEN, f'Expected status code 403 but got {response.status_code}'
     assert response.json() == expected_data, f'Expected: {expected_data}, but got: {response.json()}'
 
@@ -846,6 +846,6 @@ def test_get_candidate_education_without_permission():
     )
     client.force_authenticate(user=user)
     response = client.get(f'/api/candidates/{candidate.id}/education/')
-    expected_data = {'detail': 'Access restricted to employers only.'}
+    expected_data = {'detail': 'Access restricted to employers only'}
     assert response.status_code == HTTP_403_FORBIDDEN, f'Expected status code 403 but got {response.status_code}'
     assert response.json() == expected_data, f'Expected: {expected_data}, but got: {response.json()}'

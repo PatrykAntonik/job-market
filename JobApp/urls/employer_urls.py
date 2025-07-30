@@ -6,7 +6,7 @@ urlpatterns = [
     path('cities/', getCities, name='cities'),
     path('industries/', getIndustries, name="industries"),
     path('industries/<str:pk>/', getIndustry, name="industry"),
-    path('<str:pk>/benefits/', getEmployerBenefit, name="employer_benefit"),
+    
     path('<str:pk>/locations/', getEmployerLocation, name="employer_location"),
     path('<str:pk>/', getEmployer, name="employer"),
     path('', getEmployers, name="employers"),

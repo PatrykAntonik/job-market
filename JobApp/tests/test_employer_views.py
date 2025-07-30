@@ -145,13 +145,6 @@ def test_get_employers_success():
     expected_data = [
         {
             "id": employer1.id,
-            "company_name": "Test Employer",
-            "website_url": "www.test.com",
-            "description": "Test employer",
-            "industry": {
-                "id": industry.id,
-                "name": "Test Industry"
-            },
             "user": {
                 "id": user1.id,
                 "first_name": "",
@@ -161,17 +154,18 @@ def test_get_employers_success():
                 "phone_number": "1234567890",
                 "is_employer": True,
                 "is_candidate": False
-            }
-        },
-        {
-            "id": employer2.id,
-            "company_name": "Test Employer2",
-            "website_url": "www.test2.com",
-            "description": "Test employer 2",
+            },
+            "company_name": "Test Employer",
+            "website_url": "www.test.com",
             "industry": {
                 "id": industry.id,
                 "name": "Test Industry"
             },
+            "description": "Test employer",
+            "benefits": []
+        },
+        {
+            "id": employer2.id,
             "user": {
                 "id": user2.id,
                 "first_name": "",
@@ -181,7 +175,15 @@ def test_get_employers_success():
                 "phone_number": "01234567890",
                 "is_employer": True,
                 "is_candidate": False
-            }
+            },
+            "company_name": "Test Employer2",
+            "website_url": "www.test2.com",
+            "industry": {
+                "id": industry.id,
+                "name": "Test Industry"
+            },
+            "description": "Test employer 2",
+            "benefits": []
         }
     ]
     assert response.status_code == HTTP_200_OK, f"Expected status code 200, but got {response.status_code}"
@@ -221,13 +223,6 @@ def test_get_employer_success():
 
     expected_data = {
         "id": employer.id,
-        "company_name": "Test Employer",
-        "website_url": "www.test.com",
-        "description": "Test employer",
-        "industry": {
-            "id": industry.id,
-            "name": "Test Industry"
-        },
         "user": {
             "id": user.id,
             "first_name": "",
@@ -237,7 +232,15 @@ def test_get_employer_success():
             "phone_number": "1234567890",
             "is_employer": True,
             "is_candidate": False
-        }
+        },
+        "company_name": "Test Employer",
+        "website_url": "www.test.com",
+        "industry": {
+            "id": industry.id,
+            "name": "Test Industry"
+        },
+        "description": "Test employer",
+        "benefits": []
     }
 
     assert response.status_code == HTTP_200_OK, f"Expected status code 200, but got {response.status_code}"
@@ -250,135 +253,6 @@ def test_get_employer_not_found():
     client = APIClient()
     response = client.get(f'/api/employers/{non_existent_employer_id}/')
     assert response.status_code == HTTP_404_NOT_FOUND, f"Expected status code 404, but got {response.status_code}"
-
-
-@pytest.mark.django_db
-def test_get_employer_benefits():
-    industry = Industry.objects.create(
-        name='Test Industry',
-    )
-    country = Country.objects.create(
-        name='Test Country',
-    )
-    city = City.objects.create(
-        name='Test City',
-        country=country,
-        province='Test Province',
-        zip_code='12345'
-    )
-    user = User.objects.create_user(
-        email='test@gmail.com',
-        password='<PASSWORD>',
-        phone_number='1234567890',
-        is_employer=True,
-        city=city,
-    )
-    employer = Employer.objects.create(
-        user=user,
-        company_name='Test Employer',
-        website_url='www.test.com',
-        description='Test employer',
-        industry=industry
-    )
-    employer_benefit = EmployerBenefit.objects.create(
-        employer=employer,
-        benefit_name='Test Benefit'
-    )
-    employer_benefit2 = EmployerBenefit.objects.create(
-        employer=employer,
-        benefit_name='Test Benefit2'
-    )
-    client = APIClient()
-    response = client.get(f'/api/employers/{employer.id}/benefits/')
-    expected_data = [
-        {
-            'benefit_name': 'Test Benefit',
-            'employer': {
-                "id": employer.id,
-                "company_name": "Test Employer",
-                "website_url": "www.test.com",
-                "description": "Test employer",
-                "industry": {
-                    "id": industry.id,
-                    "name": "Test Industry"
-                },
-                "user": {
-                    "id": user.id,
-                    "first_name": "",
-                    "last_name": "",
-                    "email": "test@gmail.com",
-                    "city": user.city.id,
-                    "phone_number": "1234567890",
-                    "is_employer": True,
-                    "is_candidate": False
-                }
-            },
-            'id': 1
-        },
-        {
-            'benefit_name': 'Test Benefit2',
-            'employer': {
-                "id": employer.id,
-                "company_name": "Test Employer",
-                "website_url": "www.test.com",
-                "description": "Test employer",
-                "industry": {
-                    "id": industry.id,
-                    "name": "Test Industry"
-                },
-                "user": {
-                    "id": user.id,
-                    "first_name": "",
-                    "last_name": "",
-                    "email": "test@gmail.com",
-                    "city": user.city.id,
-                    "phone_number": "1234567890",
-                    "is_employer": True,
-                    "is_candidate": False
-                }
-            },
-            'id': 2
-        },
-    ]
-    assert response.status_code == HTTP_200_OK, f"Expected status code 200, but got {response.status_code}"
-    assert response.json() == expected_data, f"Expected {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_get_employer_with_no_benefits():
-    industry = Industry.objects.create(
-        name='Test Industry',
-    )
-    country = Country.objects.create(
-        name='Test Country',
-    )
-    city = City.objects.create(
-        name='Test City',
-        country=country,
-        province='Test Province',
-        zip_code='12345'
-    )
-    user = User.objects.create_user(
-        email='test@gmail.com',
-        password='<PASSWORD>',
-        phone_number='1234567890',
-        is_employer=True,
-        city=city,
-    )
-    employer = Employer.objects.create(
-        user=user,
-        company_name='Test Employer',
-        website_url='www.test.com',
-        description='Test employer',
-        industry=industry
-    )
-    client = APIClient()
-    response = client.get(f'/api/employers/{employer.id}/benefits/')
-    expected_data = {
-        'message': 'Employer benefits not found',
-    }
-    assert response.status_code == HTTP_404_NOT_FOUND, f"Expected status code 404, but got {response.status_code}"
-    assert response.json() == expected_data, f"Expected {expected_data}, but got {response.json()}"
 
 
 @pytest.mark.django_db
@@ -425,16 +299,9 @@ def test_employer_locations():
     )
     expected_data = [
         {
-            'city': 1,
+            'id': 1,
             'employer': {
                 "id": employer.id,
-                "company_name": "Test Employer",
-                "website_url": "www.test.com",
-                "description": "Test employer",
-                "industry": {
-                    "id": industry.id,
-                    "name": "Test Industry"
-                },
                 "user": {
                     "id": user.id,
                     "first_name": "",
@@ -444,21 +311,22 @@ def test_employer_locations():
                     "phone_number": "1234567890",
                     "is_employer": True,
                     "is_candidate": False
-                }
+                },
+                "company_name": "Test Employer",
+                "website_url": "www.test.com",
+                "industry": {
+                    "id": industry.id,
+                    "name": "Test Industry"
+                },
+                "description": "Test employer",
+                "benefits": []
             },
-            'id': 1
+            'city': 1
         },
         {
-            'city': 2,
+            'id': 2,
             'employer': {
                 "id": employer.id,
-                "company_name": "Test Employer",
-                "website_url": "www.test.com",
-                "description": "Test employer",
-                "industry": {
-                    "id": industry.id,
-                    "name": "Test Industry"
-                },
                 "user": {
                     "id": user.id,
                     "first_name": "",
@@ -468,9 +336,17 @@ def test_employer_locations():
                     "phone_number": "1234567890",
                     "is_employer": True,
                     "is_candidate": False
-                }
+                },
+                "company_name": "Test Employer",
+                "website_url": "www.test.com",
+                "industry": {
+                    "id": industry.id,
+                    "name": "Test Industry"
+                },
+                "description": "Test employer",
+                "benefits": []
             },
-            'id': 2
+            'city': 2
         },
 
     ]

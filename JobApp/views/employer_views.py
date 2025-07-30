@@ -52,16 +52,7 @@ def getEmployer(request, pk):
         return Response({'message': 'Employer not found'}, status=404)
 
 
-@api_view(['GET'])
-def getEmployerBenefit(request, pk):
-    if not Employer.objects.filter(id=pk).exists():
-        return Response({'message': 'Employer not found.'}, status=404)
-    employer_benefit = EmployerBenefit.objects.filter(employer_id=pk)
-    if employer_benefit.exists():
-        serializer = EmployerBenefitSerializer(employer_benefit, many=True)
-        return Response(serializer.data)
-    else:
-        return Response({'message': 'Employer benefits not found'}, status=404)
+
 
 
 @api_view(['GET'])
