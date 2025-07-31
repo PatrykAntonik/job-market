@@ -89,7 +89,7 @@ class Candidate(models.Model):
     :type about: str or None
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    resume = models.FileField()
+    resume = models.FileField(upload_to='resumes/')
     about = models.TextField(blank=True, null=True)
 
     def __str__(self):

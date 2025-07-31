@@ -38,14 +38,12 @@ def test_get_candidates_success():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     user2 = User.objects.create_user(
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='012345678900',
-        is_candidate=True,
         city=city,
     )
     candidate1 = Candidate.objects.create(
@@ -59,34 +57,39 @@ def test_get_candidates_success():
         resume=SimpleUploadedFile("resume.pdf", b"pdf content", content_type="application/pdf")
     )
     response = client.get('/api/candidates/')
-    expected_data = [
-        {
-            "id": candidate1.id,
-            "about": "about candidate",
-            "resume": "/PDFs/" + candidate1.resume.name,
-            "user": {
-                "id": user1.id,
-                "first_name": user1.first_name,
-                "last_name": user1.last_name,
-                "email": user1.email,
-                "city": user1.city.id,
-                "phone_number": user1.phone_number,
+    expected_data = {
+        "count": 2,
+        "next": None,
+        "previous": None,
+        "results": [
+            {
+                "id": candidate1.id,
+                "user": {
+                    "id": user1.id,
+                    "first_name": user1.first_name,
+                    "last_name": user1.last_name,
+                    "email": user1.email,
+                    "city": user1.city.id,
+                    "phone_number": user1.phone_number,
+                },
+                "resume": f"http://testserver/media/{candidate1.resume.name}",
+                "about": "about candidate",
             },
-        },
-        {
-            "id": candidate2.id,
-            "about": "about candidate",
-            "resume": "/PDFs/" + candidate2.resume.name,
-            "user": {
-                "id": user2.id,
-                "first_name": user2.first_name,
-                "last_name": user2.last_name,
-                "email": user2.email,
-                "city": user2.city.id,
-                "phone_number": user2.phone_number,
+            {
+                "id": candidate2.id,
+                "user": {
+                    "id": user2.id,
+                    "first_name": user2.first_name,
+                    "last_name": user2.last_name,
+                    "email": user2.email,
+                    "city": user2.city.id,
+                    "phone_number": user2.phone_number,
+                },
+                "resume": f"http://testserver/media/{candidate2.resume.name}",
+                "about": "about candidate",
             },
-        },
-    ]
+        ],
+    }
 
     assert response.status_code == HTTP_200_OK, f'Expected status code 200 but got {response.status_code}'
     assert response.json() == expected_data, f'Expected: {expected_data}, but got: {response.json()}'
@@ -108,7 +111,6 @@ def test_get_candidates_without_permission():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     client.force_authenticate(user=user)
@@ -152,7 +154,6 @@ def test_get_candidate_success():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -163,8 +164,6 @@ def test_get_candidate_success():
     reponse = client.get(f'/api/candidates/{candidate.id}/')
     expected_data = {
         "id": candidate.id,
-        "about": "about candidate",
-        "resume": "/PDFs/" + candidate.resume.name,
         "user": {
             "id": user.id,
             "first_name": user.first_name,
@@ -173,6 +172,8 @@ def test_get_candidate_success():
             "city": user.city.id,
             "phone_number": user.phone_number,
         },
+        "resume": f"/media/{candidate.resume.name}",
+        "about": "about candidate",
     }
     assert reponse.status_code == HTTP_200_OK, f'Expected status code 200 but got {reponse.status_code}'
     assert reponse.json() == expected_data, f'Expected: {expected_data}, but got: {reponse.json()}'
@@ -229,7 +230,6 @@ def test_get_candidate_without_permission():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -278,7 +278,6 @@ def test_get_candidate_skills_success():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -307,7 +306,7 @@ def test_get_candidate_skills_success():
                 {
                     'about': candidate.about,
                     'id': candidate.id,
-                    'resume': f'/PDFs/{candidate.resume.name}',
+                    'resume': f'/media/{candidate.resume.name}',
                     'user':
                         {
                             'city': city.id,
@@ -329,7 +328,7 @@ def test_get_candidate_skills_success():
                 {
                     'about': candidate.about,
                     'id': candidate.id,
-                    'resume': f'/PDFs/{candidate.resume.name}',
+                    'resume': f'/media/{candidate.resume.name}',
                     'user':
                         {
                             'city': city.id,
@@ -416,7 +415,6 @@ def test_get_candidate_skills_without_permission():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -465,7 +463,6 @@ def test_get_candidate_experience_success():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -498,7 +495,7 @@ def test_get_candidate_experience_success():
                 {
                     'about': candidate.about,
                     'id': candidate.id,
-                    'resume': f'/PDFs/{candidate.resume.name}',
+                    'resume': f'/media/{candidate.resume.name}',
                     'user':
                         {
                             'city': city.id,
@@ -522,7 +519,7 @@ def test_get_candidate_experience_success():
                 {
                     'about': candidate.about,
                     'id': candidate.id,
-                    'resume': f'/PDFs/{candidate.resume.name}',
+                    'resume': f'/media/{candidate.resume.name}',
                     'user':
                         {
                             'city': city.id,
@@ -580,7 +577,6 @@ def test_get_candidate_experience_not_found():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -612,7 +608,6 @@ def test_get_candidate_experience_without_permission():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -661,7 +656,6 @@ def test_get_candidate_education_success():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -694,7 +688,7 @@ def test_get_candidate_education_success():
                 {
                     'about': candidate.about,
                     'id': candidate.id,
-                    'resume': f'/PDFs/{candidate.resume.name}',
+                    'resume': f'/media/{candidate.resume.name}',
                     'user':
                         {
                             'city': city.id,
@@ -718,7 +712,7 @@ def test_get_candidate_education_success():
                 {
                     'about': candidate.about,
                     'id': candidate.id,
-                    'resume': f'/PDFs/{candidate.resume.name}',
+                    'resume': f'/media/{candidate.resume.name}',
                     'user':
                         {
                             'city': city.id,
@@ -776,7 +770,6 @@ def test_get_candidate_education_not_found():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -808,7 +801,6 @@ def test_get_candidate_education_without_permission():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(

@@ -11,7 +11,7 @@ from JobApp.models import *
 class CandidateListView(generics.ListAPIView):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
-    # permission_classes = [IsEmployer]
+    permission_classes = [IsEmployer]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['user__city', 'user__city__country', 'candidateskill__skill']
     search_fields = ['user__first_name', 'user__last_name', 'user__email']

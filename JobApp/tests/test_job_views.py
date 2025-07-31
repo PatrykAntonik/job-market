@@ -1,6 +1,7 @@
 import pytest
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED
 from JobApp.views.employer_views import *
+from JobApp.models import Skill, Industry, Country, City, User, Employer, EmployerLocation, JobOffer
 from rest_framework.test import APIClient
 
 
@@ -25,74 +26,14 @@ def test_get_skills():
 
 
 @pytest.mark.django_db
-def test_get_contract_types():
-    client = APIClient()
-    contract_type1 = ContractType.objects.create(name='Full-time')
-    contract_type2 = ContractType.objects.create(name='part-time')
-    response = client.get('/api/jobs/contract_types/')
-    expected_data = [
-        {
-            'id': contract_type1.id,
-            'name': contract_type1.name
-        },
-        {
-            'id': contract_type2.id,
-            'name': contract_type2.name
-        },
-    ]
-    assert response.status_code == HTTP_200_OK, f'Expected status 200, but got {response.status_code}'
-    assert response.data == expected_data, f'Expected {expected_data}, but got {response.data}'
-
-
-@pytest.mark.django_db
-def test_get_remoteness_levels():
-    client = APIClient()
-    remoteness_level1 = RemotenessLevel.objects.create(name='On-site')
-    remoteness_level2 = RemotenessLevel.objects.create(name='Remote')
-    response = client.get('/api/jobs/remoteness_levels/')
-    expected_data = [
-        {
-            'id': remoteness_level1.id,
-            'name': remoteness_level1.name
-        },
-        {
-            'id': remoteness_level2.id,
-            'name': remoteness_level2.name
-        },
-    ]
-    assert response.status_code == HTTP_200_OK, f'Expected status 200, but got {response.status_code}'
-    assert response.data == expected_data, f'Expected {expected_data}, but got {response.data}'
-
-
-@pytest.mark.django_db
-def test_get_seniority():
-    client = APIClient()
-    seniority1 = Seniority.objects.create(name='Junior')
-    seniority2 = Seniority.objects.create(name='Senior')
-    response = client.get('/api/jobs/seniority/')
-    expected_data = [
-        {
-            'id': seniority1.id,
-            'name': seniority1.name
-        },
-        {
-            'id': seniority2.id,
-            'name': seniority2.name
-        },
-    ]
-    assert response.status_code == HTTP_200_OK, f'Expected status 200, but got {response.status_code}'
-    assert response.data == expected_data, f'Expected {expected_data}, but got {response.data}'
-
-
-@pytest.mark.django_db
 def test_get_job_offers():
     client = APIClient()
     industry = Industry.objects.create(name='IT')
     country = Country.objects.create(name='Poland')
     city = City.objects.create(name='Warsaw', country=country)
-    remoteness = RemotenessLevel.objects.create(name='On-site')
-    contract = ContractType.objects.create(name='B2B')
-    seniority = Seniority.objects.create(name='Junior')
+    remoteness = JobOffer.RemotenessLevel.ONSITE
+    contract = JobOffer.ContractType.B2B_CONTRACT
+    seniority = JobOffer.Seniority.JUNIOR
     user1 = User.objects.create_user(
         email='test@gmail.com',
         password='<PASSWORD>',
@@ -172,21 +113,15 @@ def test_get_job_offers():
                 'description': employer1.description,
                 'benefits': []
             },
-            'remoteness': {
-                'id': job_offer_1.remoteness.id,
-                'name': job_offer_1.remoteness.name,
-            },
-            'seniority': {
-                'id': job_offer_1.seniority.id,
-                'name': job_offer_1.seniority.name,
-            },
+            'remoteness': remoteness,
+            'seniority': seniority,
             'skills': [],
             'description': job_offer_1.description,
             'position': job_offer_1.position,
             'wage': job_offer_1.wage,
             'currency': job_offer_1.currency,
             'location': employer1_location.id,
-            'contract': contract.id,
+            'contract': contract,
         },
         {
             'id': job_offer_2.id,
@@ -209,21 +144,15 @@ def test_get_job_offers():
                 'description': employer2.description,
                 'benefits': []
             },
-            'remoteness': {
-                'id': job_offer_2.remoteness.id,
-                'name': job_offer_2.remoteness.name,
-            },
-            'seniority': {
-                'id': job_offer_2.seniority.id,
-                'name': job_offer_2.seniority.name,
-            },
+            'remoteness': remoteness,
+            'seniority': seniority,
             'skills': [],
             'description': job_offer_2.description,
             'position': job_offer_2.position,
             'wage': job_offer_2.wage,
             'currency': job_offer_2.currency,
             'location': employer2_location.id,
-            'contract': contract.id,
+            'contract': contract,
         },
     ]
     assert response.status_code == HTTP_200_OK, f'Expected status 200, but got {response.status_code}'
@@ -236,9 +165,9 @@ def test_get_job_offer_success():
     industry = Industry.objects.create(name='IT')
     country = Country.objects.create(name='Poland')
     city = City.objects.create(name='Warsaw', country=country)
-    remoteness = RemotenessLevel.objects.create(name='On-site')
-    contract = ContractType.objects.create(name='B2B')
-    seniority = Seniority.objects.create(name='Junior')
+    remoteness = JobOffer.RemotenessLevel.ONSITE
+    contract = JobOffer.ContractType.B2B_CONTRACT
+    seniority = JobOffer.Seniority.JUNIOR
     user1 = User.objects.create_user(
         email='test@gmail.com',
         password='<PASSWORD>',
@@ -293,14 +222,8 @@ def test_get_job_offer_success():
             'description': employer1.description,
             'benefits': []
         },
-        'remoteness': {
-            'id': job_offer_1.remoteness.id,
-            'name': job_offer_1.remoteness.name,
-        },
-        'seniority': {
-            'id': job_offer_1.seniority.id,
-            'name': job_offer_1.seniority.name,
-        },
+        'remoteness': remoteness,
+        'seniority': seniority,
         'skills': [
             {
                 'id': skill1.id,
@@ -316,7 +239,7 @@ def test_get_job_offer_success():
         'wage': job_offer_1.wage,
         'currency': job_offer_1.currency,
         'location': employer1_location.id,
-        'contract': contract.id,
+        'contract': contract,
     }
     assert response.status_code == HTTP_200_OK, f'Expected status 200, but got {response.status_code}'
     assert response.data == expected_data, f'Expected {expected_data}, but got {response.data}'
@@ -337,9 +260,9 @@ def test_get_employer_job_offers_success():
     industry = Industry.objects.create(name='IT')
     country = Country.objects.create(name='Poland')
     city = City.objects.create(name='Warsaw', country=country)
-    remoteness = RemotenessLevel.objects.create(name='On-site')
-    contract = ContractType.objects.create(name='B2B')
-    seniority = Seniority.objects.create(name='Junior')
+    remoteness = JobOffer.RemotenessLevel.ONSITE
+    contract = JobOffer.ContractType.B2B_CONTRACT
+    seniority = JobOffer.Seniority.JUNIOR
     user1 = User.objects.create_user(
         email='test@gmail.com',
         password='<PASSWORD>',
@@ -402,21 +325,15 @@ def test_get_employer_job_offers_success():
                 'description': employer1.description,
                 'benefits': []
             },
-            'remoteness': {
-                'id': job_offer_1.remoteness.id,
-                'name': job_offer_1.remoteness.name,
-            },
-            'seniority': {
-                'id': job_offer_1.seniority.id,
-                'name': job_offer_1.seniority.name,
-            },
+            'remoteness': remoteness,
+            'seniority': seniority,
             'skills': [],
             'description': job_offer_1.description,
             'position': job_offer_1.position,
             'wage': job_offer_1.wage,
             'currency': job_offer_1.currency,
             'location': employer1_location.id,
-            'contract': contract.id,
+            'contract': contract,
         },
         {
             'id': job_offer_2.id,
@@ -437,23 +354,17 @@ def test_get_employer_job_offers_success():
                     'name': industry.name,
                 },
                 'description': employer1.description,
-            'benefits': []
+                'benefits': []
             },
-            'remoteness': {
-                'id': job_offer_2.remoteness.id,
-                'name': job_offer_2.remoteness.name,
-            },
-            'seniority': {
-                'id': job_offer_2.seniority.id,
-                'name': job_offer_2.seniority.name,
-            },
+            'remoteness': remoteness,
+            'seniority': seniority,
             'skills': [],
             'description': job_offer_2.description,
             'position': job_offer_2.position,
             'wage': job_offer_2.wage,
             'currency': job_offer_2.currency,
             'location': employer1_location.id,
-            'contract': contract.id,
+            'contract': contract,
         },
     ]
     assert response.status_code == HTTP_200_OK, f'Expected status 200, but got {response.status_code}'

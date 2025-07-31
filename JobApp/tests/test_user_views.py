@@ -13,7 +13,6 @@ def test_login_view_success():
     user = User.objects.create_user(
         email='test@test.com',
         password='testPassword',
-        is_candidate=True,
         phone_number='123456789',
         city=city,
         first_name='name',
@@ -65,7 +64,6 @@ def test_register_user_success():
             'city': city.id,
             'first_name': 'name',
             'last_name': 'surname',
-            'is_candidate': True
         },
         format='json'
     )
@@ -94,7 +92,6 @@ def test_register_user_fail():
             'city': city.id,
             'first_name': 'name1',
             'last_name': 'surname1',
-            'is_candidate': True
         },
         format='json'
     )
@@ -108,7 +105,6 @@ def test_register_user_fail():
             'city': city.id,
             'first_name': 'name2',
             'last_name': 'surname2',
-            'is_candidate': True
         },
         format='json'
     )
