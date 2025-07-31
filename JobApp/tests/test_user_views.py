@@ -138,8 +138,6 @@ def test_get_user_success():
         'email': user.email,
         'phone_number': user.phone_number,
         'city': user.city.id,
-        'is_employer': user.is_employer,
-        'is_candidate': user.is_candidate
     }
     response = client.get(f'/api/users/{user.id}/')
     assert response.status_code == HTTP_200_OK, f"Expected status code 200, got {response.status_code}"
@@ -215,8 +213,6 @@ def test_get_user_profile_success():
         'email': user.email,
         'phone_number': user.phone_number,
         'city': user.city.id,
-        'is_employer': user.is_employer,
-        'is_candidate': user.is_candidate,
     }
     response = client.get('/api/users/profile/')
     assert response.status_code == HTTP_200_OK, f'Expected status code to be 200, but got {response.code}'
@@ -276,8 +272,6 @@ def test_get_users_success():
                 'email': user.email,
                 'phone_number': user.phone_number,
                 'city': user.city.id,
-                'is_employer': user.is_employer,
-                'is_candidate': user.is_candidate,
             },
             {
                 'id': user_1.id,
@@ -286,8 +280,6 @@ def test_get_users_success():
                 'email': user_1.email,
                 'phone_number': user_1.phone_number,
                 'city': user_1.city.id,
-                'is_employer': user_1.is_employer,
-                'is_candidate': user_1.is_candidate,
             },
             {
                 'id': user_2.id,
@@ -296,8 +288,6 @@ def test_get_users_success():
                 'email': user_2.email,
                 'phone_number': user_2.phone_number,
                 'city': user_2.city.id,
-                'is_employer': user_2.is_employer,
-                'is_candidate': user_2.is_candidate,
             },
         ],
     }
@@ -375,8 +365,6 @@ def test_update_user_profile_success():
         'email': user.email,
         'phone_number': user.phone_number,
         'city': user.city.id,
-        'is_employer': user.is_employer,
-        'is_candidate': user.is_candidate,
     }
     assert response.status_code == HTTP_200_OK, f'Expected status code to be 200, but got {response.status_code}'
     assert response.json() == expected_data, f'Expected  {expected_data}, but got {response.json()}'

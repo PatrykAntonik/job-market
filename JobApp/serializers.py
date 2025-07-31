@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'city', 'phone_number', 'is_employer', 'is_candidate']
+        fields = ['id', 'first_name', 'last_name', 'email', 'city', 'phone_number']
         # fields = '__all__'
 
 
@@ -88,32 +88,8 @@ class CandidateSkillSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ContractTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContractType
-        # fields = ['id', 'name']
-        fields = '__all__'
-
-
-class RemotenessLevelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RemotenessLevel
-        # fields = ['id', 'remote_type']
-        fields = '__all__'
-
-
-class SenioritySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Seniority
-        # fields = ['id', 'seniority_level']
-        fields = '__all__'
-
-
 class JobOfferSerializer(serializers.ModelSerializer):
     employer = EmployerSerializer(read_only=True)
-    contract_type = ContractTypeSerializer(read_only=True)
-    remoteness = RemotenessLevelSerializer(read_only=True)
-    seniority = SenioritySerializer(read_only=True)
     skills = SkillSerializer(many=True, read_only=True)
 
     class Meta:

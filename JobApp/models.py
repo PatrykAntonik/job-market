@@ -54,10 +54,6 @@ class User(AbstractBaseUser, PermissionsMixin):
      :type phone_number: PhoneField
      :ivar city: The city where the user is located.
      :type city: ForeignKey
-     :ivar is_employer: Flag to indicate if the user is an employer. Defaults to False.
-     :type is_employer: bool
-     :ivar is_candidate: Flag to indicate if the user is a candidate. Defaults to False.
-     :type is_candidate: bool
      """
 
     first_name = models.CharField(max_length=50, blank=True)
@@ -66,8 +62,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone_number = PhoneField(max_length=255, unique=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True)
     is_staff = models.BooleanField(default=False)
-    is_employer = models.BooleanField(default=False)
-    is_candidate = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -192,45 +186,6 @@ class CandidateSkill(models.Model):
         return f"{self.candidate.user.first_name} {self.candidate.user.last_name} - {self.skill.name}"
 
 
-class ContractType(models.Model):
-    """
-    Represents a contract type within the system.
-
-    :ivar name: The type of contract.
-    :type name: str
-    """
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-
-class RemotenessLevel(models.Model):
-    """
-    Represents a level of job remoteness with a classification for remote types.
-
-    :ivar name: The type of job remoteness type.
-    :type name: str
-    """
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-
-class Seniority(models.Model):
-    """
-    Represents the seniority level as part of a model.
-
-    :ivar name: The level of seniority.
-    :type name: str
-    """
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-
 class CandidateExperience(models.Model):
     """
     Represents the professional experience of a candidate.
@@ -311,41 +266,78 @@ class EmployerLocation(models.Model):
 
 class JobOffer(models.Model):
     """
-    Represents a job offer created by an employer, specifying details such
-    as description, location, contract type, required skills, and position.
-    This model associates key job details with their respective categories
-    and includes other information such as wage and currency.
+    Represents a job offer within the application.
 
-    :ivar employer: Reference to the employer offering the job.
-    :type employer: Employer
-    :ivar description: Detailed description of the job offer, including roles
-        and responsibilities.
-    :type description: str
-    :ivar location: Reference to the location of the job as specified by the
-        employer.
-    :type location: EmployerLocation
-    :ivar remoteness: Level of remoteness allowed for the position.
-    :type remoteness: RemotenessLevel
-    :ivar contract: The type of contract associated with the job.
-    :type contract: ContractType
-    :ivar seniority: The seniority level required for the job position.
-    :type seniority: Seniority
-    :ivar position: The job position being offered.
-    :type position: str
-    :ivar wage: The offered wage for the position. Can be null or undefined.
-    :type wage: int, optional
-    :ivar currency: The currency type associated with the offered wage.
-    :type currency: str, optional
-    :ivar skills: A list of required skills for the job, linked via a
-        through-model.
-    :type skills: ManyToManyField (Skill)
+    This model stores all relevant information about a job offer, including its
+    description, location, and the required skills. It also defines several
+    choices for fields like seniority, contract type, and remoteness level
+    to ensure data consistency.
+
+    :ivar employer: The employer who created the job offer.
+    :type employer: ForeignKey
+    :ivar description: A detailed description of the job offer.
+    :type description: TextField
+    :ivar location: The location where the job is based.
+    :type location: ForeignKey
+    :ivar remoteness: The level of remote work allowed (e.g., onsite, hybrid, remote).
+    :type remoteness: CharField
+    :ivar contract: The type of employment contract (e.g., full-time, part-time).
+    :type contract: CharField
+    :ivar seniority: The required seniority level for the position (e.g., junior, senior).
+    :type seniority: CharField
+    :ivar position: The title of the job position.
+    :type position: CharField
+    :ivar wage: The salary for the position.
+    :type wage: IntegerField
+    :ivar currency: The currency of the wage.
+    :type currency: CharField
+    :ivar skills: The skills required for the job.
+    :type skills: ManyToManyField
     """
+
+    class Seniority(models.TextChoices):
+        """
+        An enumeration of the available seniority levels for a job offer.
+        """
+        INTERN = 'INTERN', 'Intern'
+        JUNIOR = 'JUNIOR', 'Junior'
+        MID = 'MID', 'Mid'
+        SENIOR = 'SENIOR', 'Senior'
+        LEAD = 'LEAD', 'Lead'
+
+    class ContractType(models.TextChoices):
+        """
+        An enumeration of the available contract types for a job offer.
+        """
+        EMPLOYMENT_CONTRACT = 'employment_contract', 'Employment contract'  # UoP
+        MANDATE_CONTRACT = 'mandate_contract', 'Mandate contract'  # Umowa zlecenie
+        B2B_CONTRACT = 'b2b_contract', 'B2B contract'  # Kontrakt B2B
+        SPECIFIC_TASK_CONTRACT = 'specific_task_contract', 'Specific task contract'  # Umowa o dzieło
+        INTERNSHIP_CONTRACT = 'internship_contract', 'Internship contract'
+
+    class RemotenessLevel(models.TextChoices):
+        """
+        An enumeration of the available remoteness levels for a job offer.
+        """
+        ONSITE = 'onsite', 'Onsite'
+        HYBRID = 'hybrid', 'Hybrid'
+        REMOTE = 'remote', 'Remote'
+
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
     description = models.TextField()
     location = models.ForeignKey(EmployerLocation, on_delete=models.CASCADE)
-    remoteness = models.ForeignKey(RemotenessLevel, on_delete=models.CASCADE)
-    contract = models.ForeignKey(ContractType, on_delete=models.CASCADE)
-    seniority = models.ForeignKey(Seniority, on_delete=models.CASCADE)
+    remoteness = models.CharField(
+        max_length=50,
+        choices=RemotenessLevel.choices,
+    )
+    contract = models.CharField(
+        max_length=50,
+        choices=ContractType.choices,
+    )
+    seniority = models.CharField(
+        max_length=50,
+        choices=Seniority.choices,
+    )
     position = models.CharField(max_length=255)
     wage = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0)])
     currency = models.CharField(max_length=255, blank=True, null=True)

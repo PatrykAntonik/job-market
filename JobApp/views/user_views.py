@@ -34,7 +34,7 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['city', 'city__country', 'is_employer', 'is_candidate']
+    filterset_fields = ['city', 'city__country']
     search_fields = ['first_name', 'last_name', 'email']
     ordering_fields = ['city']
     pagination_class = OptionalPagination
@@ -100,8 +100,6 @@ class RegisterUserView(APIView):
                 password=make_password(data['password']),
                 phone_number=data['phone_number'],
                 city_id=city_id,
-                is_employer=data.get('is_employer', False),
-                is_candidate=data.get('is_candidate', False),
             )
             serializer = UserSerializerToken(user, many=False)
             return Response(serializer.data, status=201)

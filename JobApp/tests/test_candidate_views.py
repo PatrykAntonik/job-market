@@ -21,7 +21,6 @@ def test_get_candidates_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -72,8 +71,6 @@ def test_get_candidates_success():
                 "email": user1.email,
                 "city": user1.city.id,
                 "phone_number": user1.phone_number,
-                "is_employer": user1.is_employer,
-                "is_candidate": user1.is_candidate,
             },
         },
         {
@@ -87,8 +84,6 @@ def test_get_candidates_success():
                 "email": user2.email,
                 "city": user2.city.id,
                 "phone_number": user2.phone_number,
-                "is_employer": user2.is_employer,
-                "is_candidate": user2.is_candidate,
             },
         },
     ]
@@ -139,7 +134,6 @@ def test_get_candidate_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -178,8 +172,6 @@ def test_get_candidate_success():
             "email": user.email,
             "city": user.city.id,
             "phone_number": user.phone_number,
-            "is_employer": user.is_employer,
-            "is_candidate": user.is_candidate,
         },
     }
     assert reponse.status_code == HTTP_200_OK, f'Expected status code 200 but got {reponse.status_code}'
@@ -202,7 +194,6 @@ def test_get_candidate_not_found():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -269,7 +260,6 @@ def test_get_candidate_skills_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -324,8 +314,6 @@ def test_get_candidate_skills_success():
                             'email': user.email,
                             'first_name': user.first_name,
                             'id': user.id,
-                            'is_candidate': user.is_candidate,
-                            'is_employer': user.is_employer,
                             'last_name': user.last_name,
                             'phone_number': user.phone_number
                         }
@@ -348,8 +336,6 @@ def test_get_candidate_skills_success():
                             'email': user.email,
                             'first_name': user.first_name,
                             'id': user.id,
-                            'is_candidate': user.is_candidate,
-                            'is_employer': user.is_employer,
                             'last_name': user.last_name,
                             'phone_number': user.phone_number
                         }
@@ -381,7 +367,6 @@ def test_get_candidate_skills_not_found():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -400,7 +385,6 @@ def test_get_candidate_skills_not_found():
         email='test1@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_candidate=True,
         city=city,
     )
     candidate = Candidate.objects.create(
@@ -463,7 +447,6 @@ def test_get_candidate_experience_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -522,8 +505,6 @@ def test_get_candidate_experience_success():
                             'email': user.email,
                             'first_name': user.first_name,
                             'id': user.id,
-                            'is_candidate': user.is_candidate,
-                            'is_employer': user.is_employer,
                             'last_name': user.last_name,
                             'phone_number': user.phone_number
                         }
@@ -548,8 +529,6 @@ def test_get_candidate_experience_success():
                             'email': user.email,
                             'first_name': user.first_name,
                             'id': user.id,
-                            'is_candidate': user.is_candidate,
-                            'is_employer': user.is_employer,
                             'last_name': user.last_name,
                             'phone_number': user.phone_number
                         }
@@ -583,7 +562,6 @@ def test_get_candidate_experience_not_found():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -665,7 +643,6 @@ def test_get_candidate_education_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(
@@ -724,8 +701,6 @@ def test_get_candidate_education_success():
                             'email': user.email,
                             'first_name': user.first_name,
                             'id': user.id,
-                            'is_candidate': user.is_candidate,
-                            'is_employer': user.is_employer,
                             'last_name': user.last_name,
                             'phone_number': user.phone_number
                         }
@@ -750,8 +725,6 @@ def test_get_candidate_education_success():
                             'email': user.email,
                             'first_name': user.first_name,
                             'id': user.id,
-                            'is_candidate': user.is_candidate,
-                            'is_employer': user.is_employer,
                             'last_name': user.last_name,
                             'phone_number': user.phone_number
                         }
@@ -785,7 +758,6 @@ def test_get_candidate_education_not_found():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     industry = Industry.objects.create(

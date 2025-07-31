@@ -7,7 +7,7 @@ import random
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        records_num = 10
+        records_num = 50
         self.stdout.write('Populating database...')
         fake = Faker()
 
@@ -30,7 +30,13 @@ class Command(BaseCommand):
             cities.append(city)
         self.stdout.write(self.style.SUCCESS(f'Created {len(cities)} cities.'))
 
-        users = []
+        industries = []
+        for _ in range(records_num):
+            industry = Industry.objects.create(name=fake.unique.job())
+            industries.append(industry)
+        self.stdout.write(self.style.SUCCESS(f'Created {len(industries)} industries.'))
+
+        candidates = []
         for _ in range(records_num):  # Candidates
             user = User.objects.create_user(
                 email=fake.unique.email(),
@@ -39,25 +45,7 @@ class Command(BaseCommand):
                 last_name=fake.last_name(),
                 phone_number=fake.unique.phone_number(),
                 city=random.choice(cities),
-                is_candidate=True
             )
-            users.append(user)
-        for _ in range(records_num):  # Employers
-            user = User.objects.create_user(
-                email=fake.unique.email(),
-                password='password123',
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
-                phone_number=fake.unique.phone_number(),
-                city=random.choice(cities),
-                is_employer=True
-            )
-            users.append(user)
-        self.stdout.write(self.style.SUCCESS(f'Created {len(users)} users.'))
-
-        candidates = []
-        candidate_users = User.objects.filter(is_candidate=True)
-        for user in candidate_users:
             candidate = Candidate.objects.create(
                 user=user,
                 resume=f'resumes/{fake.file_name(extension="pdf")}',
@@ -66,15 +54,16 @@ class Command(BaseCommand):
             candidates.append(candidate)
         self.stdout.write(self.style.SUCCESS(f'Created {len(candidates)} candidates.'))
 
-        industries = []
-        for _ in range(records_num):
-            industry = Industry.objects.create(name=fake.unique.job())
-            industries.append(industry)
-        self.stdout.write(self.style.SUCCESS(f'Created {len(industries)} industries.'))
-
         employers = []
-        employer_users = User.objects.filter(is_employer=True)
-        for user in employer_users:
+        for _ in range(records_num):  # Employers
+            user = User.objects.create_user(
+                email=fake.unique.email(),
+                password='password123',
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+                phone_number=fake.unique.phone_number(),
+                city=random.choice(cities),
+            )
             employer = Employer.objects.create(
                 user=user,
                 company_name=fake.unique.company(),
@@ -109,24 +98,6 @@ class Command(BaseCommand):
             )
             candidate_skills.append(candidate_skill)
         self.stdout.write(self.style.SUCCESS(f'Created {len(candidate_skills)} candidate skills.'))
-
-        contract_types = []
-        for _ in range(records_num):
-            contract_type = ContractType.objects.create(name=fake.unique.word())
-            contract_types.append(contract_type)
-        self.stdout.write(self.style.SUCCESS(f'Created {len(contract_types)} contract types.'))
-
-        remoteness_levels = []
-        for _ in range(records_num):
-            remoteness_level = RemotenessLevel.objects.create(name=fake.unique.word())
-            remoteness_levels.append(remoteness_level)
-        self.stdout.write(self.style.SUCCESS(f'Created {len(remoteness_levels)} remoteness levels.'))
-
-        seniorities = []
-        for _ in range(records_num):
-            seniority = Seniority.objects.create(name=fake.unique.word())
-            seniorities.append(seniority)
-        self.stdout.write(self.style.SUCCESS(f'Created {len(seniorities)} seniorities.'))
 
         candidate_experiences = []
         for _ in range(records_num):
@@ -183,9 +154,9 @@ class Command(BaseCommand):
                 employer=random.choice(employers),
                 description=fake.paragraph(),
                 location=random.choice(employer_locations),
-                remoteness=random.choice(remoteness_levels),
-                contract=random.choice(contract_types),
-                seniority=random.choice(seniorities),
+                remoteness=random.choice(JobOffer.RemotenessLevel.values),
+                contract=random.choice(JobOffer.ContractType.values),
+                seniority=random.choice(JobOffer.Seniority.values),
                 position=fake.job(),
                 wage=random.randint(30000, 120000),
                 currency=fake.currency_code()
@@ -221,9 +192,6 @@ class Command(BaseCommand):
         EmployerLocation.objects.all().delete()
         CandidateEducation.objects.all().delete()
         CandidateExperience.objects.all().delete()
-        Seniority.objects.all().delete()
-        RemotenessLevel.objects.all().delete()
-        ContractType.objects.all().delete()
         CandidateSkill.objects.all().delete()
         Skill.objects.all().delete()
         Benefit.objects.all().delete()

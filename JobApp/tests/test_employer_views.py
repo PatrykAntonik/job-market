@@ -113,14 +113,12 @@ def test_get_employers_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     user2 = User.objects.create_user(
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='01234567890',
-        is_employer=True,
         city=city,
     )
     employer1 = Employer.objects.create(
@@ -152,8 +150,6 @@ def test_get_employers_success():
                 "email": "test@gmail.com",
                 "city": user1.city.id,
                 "phone_number": "1234567890",
-                "is_employer": True,
-                "is_candidate": False
             },
             "company_name": "Test Employer",
             "website_url": "www.test.com",
@@ -173,8 +169,6 @@ def test_get_employers_success():
                 "email": "test2@gmail.com",
                 "city": user2.city.id,
                 "phone_number": "01234567890",
-                "is_employer": True,
-                "is_candidate": False
             },
             "company_name": "Test Employer2",
             "website_url": "www.test2.com",
@@ -208,7 +202,6 @@ def test_get_employer_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     employer = Employer.objects.create(
@@ -230,8 +223,6 @@ def test_get_employer_success():
             "email": "test@gmail.com",
             "city": user.city.id,
             "phone_number": "1234567890",
-            "is_employer": True,
-            "is_candidate": False
         },
         "company_name": "Test Employer",
         "website_url": "www.test.com",
@@ -279,7 +270,6 @@ def test_employer_locations():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     employer = Employer.objects.create(
@@ -309,8 +299,6 @@ def test_employer_locations():
                     "email": "test@gmail.com",
                     "city": user.city.id,
                     "phone_number": "1234567890",
-                    "is_employer": True,
-                    "is_candidate": False
                 },
                 "company_name": "Test Employer",
                 "website_url": "www.test.com",
@@ -334,8 +322,6 @@ def test_employer_locations():
                     "email": "test@gmail.com",
                     "city": user.city.id,
                     "phone_number": "1234567890",
-                    "is_employer": True,
-                    "is_candidate": False
                 },
                 "company_name": "Test Employer",
                 "website_url": "www.test.com",

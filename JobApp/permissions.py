@@ -8,4 +8,4 @@ class IsEmployer(BasePermission):
     message = "Access restricted to employers only"
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.is_employer
+        return request.user and request.user.is_authenticated and hasattr(request.user, 'employer')

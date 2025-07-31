@@ -97,14 +97,12 @@ def test_get_job_offers():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     user2 = User.objects.create_user(
         email='test2@gmail.com',
         password='<PASSWORD>',
         phone_number='123456789',
-        is_employer=True,
         city=city,
     )
     employer1 = Employer.objects.create(
@@ -164,8 +162,6 @@ def test_get_job_offers():
                     'email': user1.email,
                     'city': user1.city.id,
                     'phone_number': user1.phone_number,
-                    'is_employer': user1.is_employer,
-                    'is_candidate': user1.is_candidate,
                 },
                 'company_name': employer1.company_name,
                 'website_url': employer1.website_url,
@@ -203,8 +199,6 @@ def test_get_job_offers():
                     'email': user2.email,
                     'city': user2.city.id,
                     'phone_number': user2.phone_number,
-                    'is_employer': user2.is_employer,
-                    'is_candidate': user2.is_candidate,
                 },
                 'company_name': employer2.company_name,
                 'website_url': employer2.website_url,
@@ -249,7 +243,6 @@ def test_get_job_offer_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     employer1 = Employer.objects.create(
@@ -290,8 +283,6 @@ def test_get_job_offer_success():
                 'email': user1.email,
                 'city': user1.city.id,
                 'phone_number': user1.phone_number,
-                'is_employer': user1.is_employer,
-                'is_candidate': user1.is_candidate,
             },
             'company_name': employer1.company_name,
             'website_url': employer1.website_url,
@@ -353,7 +344,6 @@ def test_get_employer_job_offers_success():
         email='test@gmail.com',
         password='<PASSWORD>',
         phone_number='1234567890',
-        is_employer=True,
         city=city,
     )
     employer1 = Employer.objects.create(
@@ -402,8 +392,6 @@ def test_get_employer_job_offers_success():
                     'email': user1.email,
                     'city': user1.city.id,
                     'phone_number': user1.phone_number,
-                    'is_employer': user1.is_employer,
-                    'is_candidate': user1.is_candidate,
                 },
                 'company_name': employer1.company_name,
                 'website_url': employer1.website_url,
@@ -441,8 +429,6 @@ def test_get_employer_job_offers_success():
                     'email': user1.email,
                     'city': user1.city.id,
                     'phone_number': user1.phone_number,
-                    'is_employer': user1.is_employer,
-                    'is_candidate': user1.is_candidate,
                 },
                 'company_name': employer1.company_name,
                 'website_url': employer1.website_url,
