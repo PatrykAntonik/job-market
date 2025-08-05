@@ -10,6 +10,7 @@ class Country(models.Model):
     :ivar name: The country associated with the candidate.
     :type name: CharField
     """
+
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -27,6 +28,7 @@ class City(models.Model):
     :ivar country : Country associated with a city.
     :type country: Country
     """
+
     name = models.CharField(max_length=255)
     province = models.CharField(max_length=255)
     zip_code = models.CharField(max_length=255, blank=True)
@@ -38,32 +40,32 @@ class City(models.Model):
 
 class User(AbstractBaseUser, PermissionsMixin):
     """
-     Represents a user that extends the default Django AbstractUser with additional attributes.
+    Represents a user that extends the default Django AbstractUser with additional attributes.
 
-     Is a base model for employer and candidate. Collects columns common for Candidate and Employer models.
+    Is a base model for employer and candidate. Collects columns common for Candidate and Employer models.
 
-     :ivar first_name: The first name of the user.
-     :type first_name: str
-     :ivar last_name: The last name of the user.
-     :type last_name: str
-     :ivar email: The email address of the user.
-     :type email: str
-     :ivar password: The hashed password of the user.
-     :type password: str
-     :ivar phone_number: The phone number of the user. Must be unique.
-     :type phone_number: PhoneField
-     :ivar city: The city where the user is located.
-     :type city: ForeignKey
-     """
+    :ivar first_name: The first name of the user.
+    :type first_name: str
+    :ivar last_name: The last name of the user.
+    :type last_name: str
+    :ivar email: The email address of the user.
+    :type email: str
+    :ivar password: The hashed password of the user.
+    :type password: str
+    :ivar phone_number: The phone number of the user. Must be unique.
+    :type phone_number: PhoneField
+    :ivar city: The city where the user is located.
+    :type city: ForeignKey
+    """
 
-    first_name = models.CharField(max_length=50, blank=True)
-    last_name = models.CharField(max_length=50, blank=True)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     phone_number = PhoneField(max_length=255, unique=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True)
     is_staff = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
@@ -88,8 +90,9 @@ class Candidate(models.Model):
     :ivar about: Optional text field for additional information about the candidate.
     :type about: str or None
     """
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    resume = models.FileField(upload_to='resumes/')
+    resume = models.FileField(upload_to="resumes/")
     about = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -103,6 +106,7 @@ class Industry(models.Model):
     :ivar name: The unique name of the industry.
     :type name: CharField
     """
+
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -128,12 +132,13 @@ class Employer(models.Model):
     :ivar industry: The industry to which the employer belongs.
     :type industry: models.ForeignKey
     """
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=255, unique=True)
     website_url = models.URLField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
-    benefits = models.ManyToManyField('Benefit', blank=True)
+    benefits = models.ManyToManyField("Benefit", blank=True)
 
     def __str__(self):
         return self.company_name + " - " + self.industry.name
@@ -146,6 +151,7 @@ class Benefit(models.Model):
     :ivar name: The unique name of the benefit.
     :type name: str
     """
+
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -159,6 +165,7 @@ class Skill(models.Model):
     :ivar name: The unique name of the skill.
     :type name: models.CharField
     """
+
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -176,11 +183,12 @@ class CandidateSkill(models.Model):
     :ivar skill: The skill linked to the candidate.
     :type skill: ForeignKey
     """
+
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('candidate', 'skill')
+        unique_together = ("candidate", "skill")
 
     def __str__(self):
         return f"{self.candidate.user.first_name} {self.candidate.user.last_name} - {self.skill.name}"
@@ -208,6 +216,7 @@ class CandidateExperience(models.Model):
         experience. Can be left blank.
     :type description: TextField
     """
+
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=255)
     date_from = models.DateField()
@@ -239,6 +248,7 @@ class CandidateEducation(models.Model):
     :ivar is_current: Indicates whether the candidate is currently enrolled in this educational program.
     :type is_current: BooleanField
     """
+
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     school_name = models.CharField(max_length=255)
     field_of_study = models.CharField(max_length=255)
@@ -257,6 +267,7 @@ class EmployerLocation(models.Model):
     :ivar city: The city where the employer is located.
     :type city: City
     """
+
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
     city = models.ForeignKey(City, on_delete=models.CASCADE)
 
@@ -299,49 +310,55 @@ class JobOffer(models.Model):
         """
         An enumeration of the available seniority levels for a job offer.
         """
-        INTERN = 'INTERN', 'Intern'
-        JUNIOR = 'JUNIOR', 'Junior'
-        MID = 'MID', 'Mid'
-        SENIOR = 'SENIOR', 'Senior'
-        LEAD = 'LEAD', 'Lead'
+
+        INTERN = "INTERN", "Intern"
+        JUNIOR = "JUNIOR", "Junior"
+        MID = "MID", "Mid"
+        SENIOR = "SENIOR", "Senior"
+        LEAD = "LEAD", "Lead"
 
     class ContractType(models.TextChoices):
         """
         An enumeration of the available contract types for a job offer.
         """
-        EMPLOYMENT_CONTRACT = 'employment_contract', 'Employment contract'  # UoP
-        MANDATE_CONTRACT = 'mandate_contract', 'Mandate contract'  # Umowa zlecenie
-        B2B_CONTRACT = 'b2b_contract', 'B2B contract'  # Kontrakt B2B
-        SPECIFIC_TASK_CONTRACT = 'specific_task_contract', 'Specific task contract'  # Umowa o dzieło
-        INTERNSHIP_CONTRACT = 'internship_contract', 'Internship contract'
+
+        EMPLOYMENT_CONTRACT = "employment_contract", "Employment contract"  # UoP
+        MANDATE_CONTRACT = "mandate_contract", "Mandate contract"  # Umowa zlecenie
+        B2B_CONTRACT = "b2b_contract", "B2B contract"  # Kontrakt B2B
+        SPECIFIC_TASK_CONTRACT = (
+            "specific_task_contract",
+            "Specific task contract",
+        )  # Umowa o dzieło
+        INTERNSHIP_CONTRACT = "internship_contract", "Internship contract"
 
     class RemotenessLevel(models.TextChoices):
         """
         An enumeration of the available remoteness levels for a job offer.
         """
-        ONSITE = 'onsite', 'Onsite'
-        HYBRID = 'hybrid', 'Hybrid'
-        REMOTE = 'remote', 'Remote'
+
+        ONSITE = "onsite", "Onsite"
+        HYBRID = "hybrid", "Hybrid"
+        REMOTE = "remote", "Remote"
 
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
     description = models.TextField()
     location = models.ForeignKey(EmployerLocation, on_delete=models.CASCADE)
     remoteness = models.CharField(
-        max_length=50,
+        max_length=255,
         choices=RemotenessLevel.choices,
     )
     contract = models.CharField(
-        max_length=50,
+        max_length=255,
         choices=ContractType.choices,
     )
     seniority = models.CharField(
-        max_length=50,
+        max_length=255,
         choices=Seniority.choices,
     )
     position = models.CharField(max_length=255)
     wage = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0)])
     currency = models.CharField(max_length=255, blank=True, null=True)
-    skills = models.ManyToManyField(Skill, through='JobOfferSkill')
+    skills = models.ManyToManyField(Skill, through="JobOfferSkill")
 
     def __str__(self):
         return self.employer.company_name + " - " + self.position
@@ -358,6 +375,7 @@ class JobOfferSkill(models.Model):
     :ivar skill: The skill associated with the job offer.
     :type skill: ForeignKey
     """
+
     offer = models.ForeignKey(JobOffer, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
 
@@ -374,6 +392,7 @@ class OfferResponse(models.Model):
     :ivar candidate: The candidate who has responded to the job offer.
     :type candidate: ForeignKey to Candidate
     """
+
     offer = models.ForeignKey(JobOffer, on_delete=models.CASCADE)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
 

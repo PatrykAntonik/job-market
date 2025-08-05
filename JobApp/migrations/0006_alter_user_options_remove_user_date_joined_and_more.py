@@ -6,24 +6,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('JobApp', '0005_alter_user_managers_alter_user_email_and_more'),
+        ("JobApp", "0005_alter_user_managers_alter_user_email_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='user',
+            name="user",
             options={},
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='date_joined',
+            model_name="user",
+            name="date_joined",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='is_active',
+            model_name="user",
+            name="is_active",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='username',
+            model_name="user",
+            name="username",
         ),
     ]

@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('JobApp', '0008_benefit_alter_candidateeducation_is_current_and_more'),
+        ("JobApp", "0008_benefit_alter_candidateeducation_is_current_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='is_candidate',
+            model_name="user",
+            name="is_candidate",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='is_employer',
+            model_name="user",
+            name="is_employer",
         ),
     ]

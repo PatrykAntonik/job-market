@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('JobApp', '0010_alter_joboffer_contract_alter_joboffer_remoteness_and_more'),
+        ("JobApp", "0010_alter_joboffer_contract_alter_joboffer_remoteness_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='candidate',
-            name='resume',
-            field=models.FileField(upload_to='resumes/'),
+            model_name="candidate",
+            name="resume",
+            field=models.FileField(upload_to="resumes/"),
         ),
     ]

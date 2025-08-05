@@ -6,32 +6,57 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('JobApp', '0009_remove_user_is_candidate_remove_user_is_employer'),
+        ("JobApp", "0009_remove_user_is_candidate_remove_user_is_employer"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='joboffer',
-            name='contract',
-            field=models.CharField(choices=[('employment_contract', 'Employment contract'), ('mandate_contract', 'Mandate contract'), ('b2b_contract', 'B2B contract'), ('specific_task_contract', 'Specific task contract'), ('internship_contract', 'Internship contract')], max_length=50),
+            model_name="joboffer",
+            name="contract",
+            field=models.CharField(
+                choices=[
+                    ("employment_contract", "Employment contract"),
+                    ("mandate_contract", "Mandate contract"),
+                    ("b2b_contract", "B2B contract"),
+                    ("specific_task_contract", "Specific task contract"),
+                    ("internship_contract", "Internship contract"),
+                ],
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='joboffer',
-            name='remoteness',
-            field=models.CharField(choices=[('onsite', 'Onsite'), ('hybrid', 'Hybrid'), ('remote', 'Remote')], max_length=50),
+            model_name="joboffer",
+            name="remoteness",
+            field=models.CharField(
+                choices=[
+                    ("onsite", "Onsite"),
+                    ("hybrid", "Hybrid"),
+                    ("remote", "Remote"),
+                ],
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='joboffer',
-            name='seniority',
-            field=models.CharField(choices=[('INTERN', 'Intern'), ('JUNIOR', 'Junior'), ('MID', 'Mid'), ('SENIOR', 'Senior'), ('LEAD', 'Lead')], max_length=50),
+            model_name="joboffer",
+            name="seniority",
+            field=models.CharField(
+                choices=[
+                    ("INTERN", "Intern"),
+                    ("JUNIOR", "Junior"),
+                    ("MID", "Mid"),
+                    ("SENIOR", "Senior"),
+                    ("LEAD", "Lead"),
+                ],
+                max_length=50,
+            ),
         ),
         migrations.DeleteModel(
-            name='ContractType',
+            name="ContractType",
         ),
         migrations.DeleteModel(
-            name='RemotenessLevel',
+            name="RemotenessLevel",
         ),
         migrations.DeleteModel(
-            name='Seniority',
+            name="Seniority",
         ),
     ]

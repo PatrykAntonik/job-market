@@ -1,0 +1,48 @@
+[project]
+name = "job-market"
+package-mode = false
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "Patryk Antonik" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asgiref (==3.8.0)",
+    "attrs (==25.3.0)",
+    "django (==5.0.3)",
+    "django-cors-headers (==4.3.1)",
+    "django-filter (==25.1)",
+    "django-phone-field (==1.8.1)",
+    "djangorestframework (==3.15.1)",
+    "djangorestframework-simplejwt (==5.3.1)",
+    "drf-spectacular (==0.28.0)",
+    "inflection (==0.5.1)",
+    "iniconfig (==2.0.0)",
+    "jsonschema (==4.23.0)",
+    "jsonschema-specifications (==2024.10.1)",
+    "packaging (==24.2)",
+    "pluggy (==1.5.0)",
+    "psycopg2-binary (==2.9.9)",
+    "pyjwt (==2.8.0)",
+    "pyyaml (==6.0.2)",
+    "referencing (==0.36.2)",
+    "rpds-py (==0.24.0)",
+    "sqlparse (==0.4.4)",
+    "typing-extensions (==4.13.1)",
+    "tzdata (==2024.1)",
+    "uritemplate (==4.1.1)",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+pytest-django = "^4.11.1"
+pytest-xdist = "^3.8.0"
+faker = "^37.5.3"
+

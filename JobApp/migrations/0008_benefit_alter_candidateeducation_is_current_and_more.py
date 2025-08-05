@@ -6,38 +6,46 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('JobApp', '0007_alter_user_city'),
+        ("JobApp", "0007_alter_user_city"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Benefit',
+            name="Benefit",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='candidateeducation',
-            name='is_current',
+            model_name="candidateeducation",
+            name="is_current",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='candidateexperience',
-            name='is_current',
+            model_name="candidateexperience",
+            name="is_current",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='city',
-            name='zip_code',
+            model_name="city",
+            name="zip_code",
             field=models.CharField(blank=True, max_length=255),
         ),
         migrations.AddField(
-            model_name='employer',
-            name='benefits',
-            field=models.ManyToManyField(blank=True, to='JobApp.benefit'),
+            model_name="employer",
+            name="benefits",
+            field=models.ManyToManyField(blank=True, to="JobApp.benefit"),
         ),
         migrations.DeleteModel(
-            name='EmployerBenefit',
+            name="EmployerBenefit",
         ),
     ]

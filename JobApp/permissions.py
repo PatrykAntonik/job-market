@@ -5,7 +5,12 @@ class IsEmployer(BasePermission):
     """
     Allows access only to users that are marked as employers.
     """
+
     message = "Access restricted to employers only"
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and hasattr(request.user, 'employer')
+        return (
+            request.user
+            and request.user.is_authenticated
+            and hasattr(request.user, "employer")
+        )

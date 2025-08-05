@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('JobApp', '0006_alter_user_options_remove_user_date_joined_and_more'),
+        ("JobApp", "0006_alter_user_options_remove_user_date_joined_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='city',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='JobApp.city'),
+            model_name="user",
+            name="city",
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.CASCADE, to="JobApp.city"
+            ),
         ),
     ]
