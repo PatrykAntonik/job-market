@@ -1,9 +1,11 @@
-import django_filters
-from .models import User, City, Country, Candidate, Skill, CandidateEducation
-from django_filters import widgets, FilterSet
-from django.db.models import F, ExpressionWrapper, DurationField
-from django.db.models.functions import Now
 from datetime import date, timedelta
+
+import django_filters
+from django.db.models import DurationField, ExpressionWrapper, F
+from django.db.models.functions import Now
+from django_filters import FilterSet, widgets
+
+from .models import Candidate, CandidateEducation, City, Country, Skill, User
 
 
 class UserFilter(django_filters.FilterSet):

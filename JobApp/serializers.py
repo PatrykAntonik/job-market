@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import *
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import *
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -69,6 +70,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 #         candidate = Candidate.objects.create(user=user, **validated_data)
 #         return candidate
 
+
 class CandidateRegistrationSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
@@ -80,12 +82,18 @@ class CandidateRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = [
-            "first_name", "last_name", "email", "password",
-            "phone_number", "city", "resume", "about"
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "phone_number",
+            "city",
+            "resume",
+            "about",
         ]
 
     def validate_resume(self, value):
-        if not value.name.endswith('.pdf'):
+        if not value.name.endswith(".pdf"):
             raise serializers.ValidationError("Resume must be a PDF file")
         return value
 
@@ -192,7 +200,7 @@ class CandidateSkillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CandidateSkill
-        fields = ['id', 'skill', 'candidate']
+        fields = ["id", "skill", "candidate"]
 
 
 class JobOfferSerializer(serializers.ModelSerializer):
@@ -288,11 +296,21 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(required=False)
     email = serializers.EmailField(required=False)
     phone_number = serializers.CharField(required=False)
-    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), required=False)
+    city = serializers.PrimaryKeyRelatedField(
+        queryset=City.objects.all(), required=False
+    )
 
     class Meta:
         model = Candidate
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'city', 'resume', 'about']
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "city",
+            "resume",
+            "about",
+        ]
 
     def to_representation(self, instance):
         return CandidateSerializer(instance).data

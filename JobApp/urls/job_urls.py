@@ -1,4 +1,5 @@
 from django.urls import path
+
 from JobApp.views.job_views import *
 
 urlpatterns = [

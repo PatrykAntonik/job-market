@@ -1,7 +1,8 @@
-from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import MinValueValidator
 from django.db import models
 from phone_field import PhoneField
+
 from .managers import CustomUserManager
 
 

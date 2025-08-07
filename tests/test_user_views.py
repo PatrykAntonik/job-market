@@ -1,15 +1,11 @@
 import pytest
-from rest_framework.status import (
-    HTTP_200_OK,
-    HTTP_404_NOT_FOUND,
-    HTTP_403_FORBIDDEN,
-    HTTP_401_UNAUTHORIZED,
-    HTTP_201_CREATED,
-    HTTP_400_BAD_REQUEST,
-    HTTP_204_NO_CONTENT,
-)
-from JobApp.views.user_views import *
+from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
+                                   HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST,
+                                   HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN,
+                                   HTTP_404_NOT_FOUND)
 from rest_framework.test import APIClient
+
+from JobApp.views.user_views import *
 
 
 @pytest.mark.django_db
@@ -33,12 +29,12 @@ def test_login_view_success():
         format="json",
     )
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200, but got {response.status_code}"
     assert "access" in response.data, "Expected 'access' token in response"
     assert "refresh" in response.data, "Expected 'refresh' token in response"
     assert (
-            response.data["email"] == "test@test.com"
+        response.data["email"] == "test@test.com"
     ), f"Expected email to be test@test.com, but got {response.data['email']}"
 
 
@@ -51,13 +47,13 @@ def test_login_view_fail():
         format="json",
     )
     assert (
-            response.status_code == status.HTTP_401_UNAUTHORIZED
+        response.status_code == status.HTTP_401_UNAUTHORIZED
     ), f"Expected status code 401, but got {response.status_code}"
     assert (
-            "access" not in response.data
+        "access" not in response.data
     ), "Should not include access token on invalid login"
     assert (
-            "refresh" not in response.data
+        "refresh" not in response.data
     ), "Should not include refresh token on invalid login"
 
 
@@ -85,12 +81,12 @@ def test_register_user_success():
         "email": "test@test.com",
     }
     assert (
-            response.status_code == HTTP_201_CREATED
+        response.status_code == HTTP_201_CREATED
     ), f"Expected response code 201, but got {response.status_code}"
     assert "access" in response.data, "Expected access token in response"
     assert "refresh" in response.data, "Expected refresh token in response"
     assert (
-            response.data["email"] == "test@test.com"
+        response.data["email"] == "test@test.com"
     ), f"Expected email to be 'test@test.com', but got {response.data['email']}"
 
 
@@ -114,7 +110,7 @@ def test_register_user_fail():
         format="json",
     )
     assert (
-            response1.status_code == 201
+        response1.status_code == 201
     ), f"Expected status 201, got {response1.status_code}"
     response2 = client.post(
         "/api/users/register/",
@@ -129,7 +125,7 @@ def test_register_user_fail():
         format="json",
     )
     assert (
-            response2.status_code == 400
+        response2.status_code == 400
     ), f"Expected status 400, got {response2.status_code}"
     assert "email" in response2.data
     assert response2.data["email"][0] == "user with this email already exists."
@@ -161,10 +157,10 @@ def test_get_user_success():
     }
     response = client.get(f"/api/users/{user.id}/")
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200, got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected {expected_data}, got {response.json()}"
 
 
@@ -188,10 +184,10 @@ def test_get_user_not_found():
     expected_data = {"detail": "No User matches the given query."}
     response = client.get(f"/api/users/{user.id + 1}/")
     assert (
-            response.status_code == HTTP_404_NOT_FOUND
+        response.status_code == HTTP_404_NOT_FOUND
     ), f"Expected status code 404, got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected {expected_data}, got {response.json()}"
 
 
@@ -214,10 +210,10 @@ def test_get_user_unauthorized():
     expected_data = {"detail": "You do not have permission to perform this action."}
     response = client.get(f"/api/users/{user.id}/")
     assert (
-            response.status_code == HTTP_403_FORBIDDEN
+        response.status_code == HTTP_403_FORBIDDEN
     ), f"Expected status code 403, got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected {expected_data}, got {response.json()}"
 
 
@@ -247,10 +243,10 @@ def test_get_user_profile_success():
     }
     response = client.get("/api/users/profile/")
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code to be 200, but got {response.code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected {expected_data}, but got {response.json()}"
 
 
@@ -260,10 +256,10 @@ def test_get_user_profile_unauthenticated():
     response = client.get("/api/users/profile/")
     expected_data = {"detail": "Authentication credentials were not provided."}
     assert (
-            response.status_code == HTTP_401_UNAUTHORIZED
+        response.status_code == HTTP_401_UNAUTHORIZED
     ), f"Expected status code to be 401, but got {response.code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected {expected_data}, but got {response.json()}"
 
 
@@ -328,10 +324,10 @@ def test_get_users_success():
         ],
     }
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200, got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected {expected_data}, but got {response.json()}"
 
 
@@ -354,10 +350,10 @@ def test_get_users_without_permissions():
     response = client.get("/api/users/")
     expected_data = {"detail": "You do not have permission to perform this action."}
     assert (
-            response.status_code == HTTP_403_FORBIDDEN
+        response.status_code == HTTP_403_FORBIDDEN
     ), f"Expected status code 403, got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected {expected_data}, but got {response.json()}"
 
 
@@ -401,10 +397,10 @@ def test_update_user_profile_success():
         "city": user.city.id,
     }
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code to be 200, but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected  {expected_data}, but got {response.json()}"
 
 
@@ -443,10 +439,10 @@ def test_update_user_profile_unique_email_fail():
     response = client.put("/api/users/profile/", data, format="json")
     expected_data = {"email": ["user with this email already exists."]}
     assert (
-            response.status_code == HTTP_400_BAD_REQUEST
+        response.status_code == HTTP_400_BAD_REQUEST
     ), f"Expected status code to be 400, but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected  {expected_data}, but got {response.json()}"
 
 
@@ -485,10 +481,10 @@ def test_update_user_profile_unique_phone_fail():
     response = client.put("/api/users/profile/", data, format="json")
     expected_data = {"phone_number": ["user with this phone number already exists."]}
     assert (
-            response.status_code == HTTP_400_BAD_REQUEST
+        response.status_code == HTTP_400_BAD_REQUEST
     ), f"Expected status code to be 400, but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected  {expected_data}, but got {response.json()}"
 
 
@@ -518,10 +514,10 @@ def test_update_user_profile_unauthenticated():
     response = client.put("/api/users/profile/", data, format="json")
     expected_data = {"detail": "Authentication credentials were not provided."}
     assert (
-            response.status_code == HTTP_401_UNAUTHORIZED
+        response.status_code == HTTP_401_UNAUTHORIZED
     ), f"Expected status code to be 401, but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected  {expected_data}, but got {response.json()}"
 
 
@@ -549,10 +545,10 @@ def test_update_user_password_success():
     response = client.put("/api/users/profile/password/", data, format="json")
     expected_data = {"message": "Password updated successfully"}
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code to be 200, but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected  {expected_data}, but got {response.json()}"
 
 
@@ -578,12 +574,16 @@ def test_update_user_password_wrong_old_password():
         "confirm_password": "newPassword",
     }
     response = client.put("/api/users/profile/password/", data, format="json")
-    expected_data = {"old_password": ["Your old password was entered incorrectly. Please enter it again."]}
+    expected_data = {
+        "old_password": [
+            "Your old password was entered incorrectly. Please enter it again."
+        ]
+    }
     assert (
-            response.status_code == HTTP_400_BAD_REQUEST
+        response.status_code == HTTP_400_BAD_REQUEST
     ), f"Expected status code to be 400, but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected  {expected_data}, but got {response.json()}"
 
 
@@ -611,10 +611,10 @@ def test_update_user_password_mismatched_confirm_new_password():
     response = client.put("/api/users/profile/password/", data, format="json")
     expected_data = {"non_field_errors": ["New passwords do not match"]}
     assert (
-            response.status_code == HTTP_400_BAD_REQUEST
+        response.status_code == HTTP_400_BAD_REQUEST
     ), f"Expected status code to be 400, but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected  {expected_data}, but got {response.json()}"
 
 
@@ -638,7 +638,7 @@ def test_delete_user_success():
         "/api/users/profile/", data={"password": "password"}, format="json"
     )
     assert (
-            response.status_code == HTTP_204_NO_CONTENT
+        response.status_code == HTTP_204_NO_CONTENT
     ), f"Expected status code to be 204, but got {response.status_code}"
 
 
@@ -662,5 +662,5 @@ def test_delete_user_unauthenticated():
         "/api/users/profile/", data={"password": "wrong_password"}, format="json"
     )
     assert (
-            response.status_code == HTTP_400_BAD_REQUEST
+        response.status_code == HTTP_400_BAD_REQUEST
     ), f"Expected status code to be 400, but got {response.status_code}"

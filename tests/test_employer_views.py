@@ -1,9 +1,11 @@
 from http.client import responses
+
 import pytest
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
-from JobApp.views.employer_views import *
-from rest_framework.test import APIClient
 from rest_framework import status
+from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
+from rest_framework.test import APIClient
+
+from JobApp.views.employer_views import *
 
 
 @pytest.mark.django_db

@@ -1,22 +1,11 @@
 import pytest
-from rest_framework.status import (
-    HTTP_200_OK,
-    HTTP_404_NOT_FOUND,
-    HTTP_403_FORBIDDEN,
-    HTTP_401_UNAUTHORIZED,
-)
-from JobApp.views.employer_views import *
-from JobApp.models import (
-    Skill,
-    Industry,
-    Country,
-    City,
-    User,
-    Employer,
-    EmployerLocation,
-    JobOffer,
-)
+from rest_framework.status import (HTTP_200_OK, HTTP_401_UNAUTHORIZED,
+                                   HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND)
 from rest_framework.test import APIClient
+
+from JobApp.models import (City, Country, Employer, EmployerLocation, Industry,
+                           JobOffer, Skill, User)
+from JobApp.views.employer_views import *
 
 
 @pytest.mark.django_db

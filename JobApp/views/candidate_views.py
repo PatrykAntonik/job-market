@@ -1,23 +1,21 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-
-from JobApp.filters import CandidateFilter
-from JobApp.pagination import OptionalPagination
-from JobApp.serializers import *
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from JobApp.permissions import IsEmployer
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, filters
-from JobApp.models import *
-from JobApp.pagination import OptionalPagination
 from datetime import date
-from django.db.models import Sum, F, ExpressionWrapper, DurationField
+
+from django.db.models import DurationField, ExpressionWrapper, F, Sum
 from django.db.models.functions import Coalesce
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+
+from docs.candidate_docs import *
+from JobApp.filters import CandidateFilter
 from JobApp.mixins import *
 from JobApp.models import *
-from docs.candidate_docs import *
-from rest_framework import status
+from JobApp.pagination import OptionalPagination
+from JobApp.permissions import IsEmployer
+from JobApp.serializers import *
 
 
 @candidate_list_docs
@@ -87,7 +85,9 @@ class RegisterCandidateView(generics.CreateAPIView):
         if serializer.is_valid():
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED, headers=headers
+            )
         else:
             errors = serializer.errors
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
@@ -102,3 +102,9 @@ class CandidateProfileView(generics.RetrieveUpdateAPIView):
         return get_object_or_404(Candidate, user=self.request.user)
 
 
+class CandidateEducationProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CandidateEducationSerializer
+
+    def get_object(self):
+        return get_object_or_404(CandidateEducation, user=self.request.user.candidate)

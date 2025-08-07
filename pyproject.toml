@@ -7,7 +7,7 @@ authors = [
     { name = "Patryk Antonik" }
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "asgiref (==3.8.0)",
     "attrs (==25.3.0)",
@@ -46,4 +46,8 @@ pytest-django = "^4.11.1"
 pytest-xdist = "^3.8.0"
 faker = "^37.5.3"
 python-dotenv = "^1.1.1"
+isort = "^6.0.1"
+black = "^25.1.0"
+pylint = "^3.3.7"
+pylint-django = "^2.6.1"
 

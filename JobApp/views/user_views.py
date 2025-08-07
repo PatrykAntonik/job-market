@@ -1,20 +1,19 @@
+from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from JobApp.serializers import *
+from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from django.contrib.auth.hashers import make_password
-from rest_framework import status
-from django.db import IntegrityError
-from JobApp.permissions import IsEmployer
-from rest_framework import generics
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from JobApp.pagination import OptionalPagination
-from JobApp.filters import UserFilter
+
 from docs.user_docs import *
+from JobApp.filters import UserFilter
+from JobApp.pagination import OptionalPagination
+from JobApp.permissions import IsEmployer
+from JobApp.serializers import *
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

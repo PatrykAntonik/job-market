@@ -1,10 +1,10 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from JobApp.serializers import *
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+
 from JobApp.pagination import OptionalPagination
-from rest_framework import generics
+from JobApp.serializers import *
 
 
 @api_view(["GET"])

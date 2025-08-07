@@ -1,11 +1,9 @@
 from drf_spectacular.utils import extend_schema
-from JobApp.serializers import (
-    CandidateSerializer,
-    CandidateSkillSerializer,
-    CandidateExperienceSerializer,
-    CandidateEducationSerializer,
-    CandidateRegistrationSerializer,
-)
+
+from JobApp.serializers import (CandidateEducationSerializer,
+                                CandidateExperienceSerializer,
+                                CandidateRegistrationSerializer,
+                                CandidateSerializer, CandidateSkillSerializer)
 
 register_candidate_docs = extend_schema(
     summary="Register a new candidate",

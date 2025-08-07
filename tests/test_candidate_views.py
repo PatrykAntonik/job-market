@@ -1,14 +1,11 @@
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
-from rest_framework.status import (
-    HTTP_200_OK,
-    HTTP_404_NOT_FOUND,
-    HTTP_403_FORBIDDEN,
-    HTTP_401_UNAUTHORIZED,
-    HTTP_201_CREATED,
-)
-from JobApp.views.employer_views import *
+from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
+                                   HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN,
+                                   HTTP_404_NOT_FOUND)
 from rest_framework.test import APIClient
+
+from JobApp.views.employer_views import *
 
 
 @pytest.mark.django_db
@@ -81,7 +78,7 @@ def test_get_candidates_success():
                 },
                 "resume": f"http://testserver/media/{candidate1.resume.name}",
                 "about": "about candidate",
-                'total_experience': 0.0,
+                "total_experience": 0.0,
             },
             {
                 "id": candidate2.id,
@@ -95,16 +92,16 @@ def test_get_candidates_success():
                 },
                 "resume": f"http://testserver/media/{candidate2.resume.name}",
                 "about": "about candidate",
-                'total_experience': 0.0,
+                "total_experience": 0.0,
             },
         ],
     }
 
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -127,10 +124,10 @@ def test_get_candidates_without_permission():
     response = client.get(f"/api/candidates/")
     expected_data = {"detail": "Access restricted to employers only"}
     assert (
-            response.status_code == HTTP_403_FORBIDDEN
+        response.status_code == HTTP_403_FORBIDDEN
     ), f"Expected status code 403 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -187,13 +184,13 @@ def test_get_candidate_success():
         },
         "resume": f"http://testserver/media/{candidate.resume.name}",
         "about": "about candidate",
-        'total_experience': 0.0,
+        "total_experience": 0.0,
     }
     assert (
-            reponse.status_code == HTTP_200_OK
+        reponse.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {reponse.status_code}"
     assert (
-            reponse.json() == expected_data
+        reponse.json() == expected_data
     ), f"Expected: {expected_data}, but got: {reponse.json()}"
 
 
@@ -224,12 +221,12 @@ def test_get_candidate_not_found():
     )
     client.force_authenticate(user=employer_user)
     response = client.get("/api/candidates/1/")
-    expected_data = {'detail': 'No Candidate matches the given query.'}
+    expected_data = {"detail": "No Candidate matches the given query."}
     assert (
-            response.status_code == HTTP_404_NOT_FOUND
+        response.status_code == HTTP_404_NOT_FOUND
     ), f"Expected status code 404 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -259,10 +256,10 @@ def test_get_candidate_without_permission():
     response = client.get(f"/api/candidates/{candidate.id}/")
     expected_data = {"detail": "Access restricted to employers only"}
     assert (
-            response.status_code == HTTP_403_FORBIDDEN
+        response.status_code == HTTP_403_FORBIDDEN
     ), f"Expected status code 403 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -359,10 +356,10 @@ def test_get_candidate_skills_success():
         ],
     }
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -409,10 +406,10 @@ def test_get_candidate_skills_not_found():
     response = client.get(f"/api/candidates/{candidate.id}/skills/")
     expected_data = {"count": 0, "next": None, "previous": None, "results": []}
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -442,10 +439,10 @@ def test_get_candidate_skills_without_permission():
     response = client.get(f"/api/candidates/{candidate.id}/skills/")
     expected_data = {"detail": "Access restricted to employers only"}
     assert (
-            response.status_code == HTTP_403_FORBIDDEN
+        response.status_code == HTTP_403_FORBIDDEN
     ), f"Expected status code 403 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -556,10 +553,10 @@ def test_get_candidate_experience_success():
         ],
     }
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -606,10 +603,10 @@ def test_get_candidate_experience_not_found():
     response = client.get(f"/api/candidates/{candidate.id}/experience/")
     expected_data = {"count": 0, "next": None, "previous": None, "results": []}
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -639,10 +636,10 @@ def test_get_candidate_experience_without_permission():
     response = client.get(f"/api/candidates/{candidate.id}/experience/")
     expected_data = {"detail": "Access restricted to employers only"}
     assert (
-            response.status_code == HTTP_403_FORBIDDEN
+        response.status_code == HTTP_403_FORBIDDEN
     ), f"Expected status code 403 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -753,10 +750,10 @@ def test_get_candidate_education_success():
         ],
     }
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -803,10 +800,10 @@ def test_get_candidate_education_not_found():
     response = client.get(f"/api/candidates/{candidate.id}/education/")
     expected_data = {"count": 0, "next": None, "previous": None, "results": []}
     assert (
-            response.status_code == HTTP_200_OK
+        response.status_code == HTTP_200_OK
     ), f"Expected status code 200 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -836,10 +833,10 @@ def test_get_candidate_education_without_permission():
     response = client.get(f"/api/candidates/{candidate.id}/education/")
     expected_data = {"detail": "Access restricted to employers only"}
     assert (
-            response.status_code == HTTP_403_FORBIDDEN
+        response.status_code == HTTP_403_FORBIDDEN
     ), f"Expected status code 403 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -881,10 +878,10 @@ def test_register_candidate_success():
         "about": "about me",
     }
     assert (
-            response.status_code == HTTP_201_CREATED
+        response.status_code == HTTP_201_CREATED
     ), f"Expected status code 201 but got {response.status_code}"
     assert (
-            response.json() == expected_data
+        response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 
@@ -892,7 +889,9 @@ def test_register_candidate_success():
 def test_get_candidate_profile_success():
     client = APIClient()
     country = Country.objects.create(name="Test Country")
-    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    city = City.objects.create(
+        name="Test City", country=country, province="Test Province", zip_code="12345"
+    )
     user = User.objects.create_user(
         email="test@gmail.com",
         password="<PASSWORD>",
@@ -904,7 +903,9 @@ def test_get_candidate_profile_success():
     candidate = Candidate.objects.create(
         user=user,
         about="about candidate",
-        resume=SimpleUploadedFile("resume.pdf", b"pdf content", content_type="application/pdf"),
+        resume=SimpleUploadedFile(
+            "resume.pdf", b"pdf content", content_type="application/pdf"
+        ),
     )
     client.force_authenticate(user=user)
     response = client.get("/api/candidates/profile/")
@@ -936,7 +937,9 @@ def test_get_candidate_profile_unauthorized():
 def test_get_candidate_profile_not_a_candidate():
     client = APIClient()
     country = Country.objects.create(name="Test Country")
-    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    city = City.objects.create(
+        name="Test City", country=country, province="Test Province", zip_code="12345"
+    )
     user = User.objects.create_user(
         email="employer@gmail.com",
         password="<PASSWORD>",
@@ -960,7 +963,9 @@ def test_get_candidate_profile_not_a_candidate():
 def test_update_candidate_profile_success():
     client = APIClient()
     country = Country.objects.create(name="Test Country")
-    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    city = City.objects.create(
+        name="Test City", country=country, province="Test Province", zip_code="12345"
+    )
     user = User.objects.create_user(
         email="test@gmail.com",
         password="<PASSWORD>",
@@ -972,7 +977,9 @@ def test_update_candidate_profile_success():
     candidate = Candidate.objects.create(
         user=user,
         about="about candidate",
-        resume=SimpleUploadedFile("resume.pdf", b"pdf content", content_type="application/pdf"),
+        resume=SimpleUploadedFile(
+            "resume.pdf", b"pdf content", content_type="application/pdf"
+        ),
     )
     client.force_authenticate(user=user)
     update_data = {
@@ -997,7 +1004,9 @@ def test_update_candidate_profile_unauthorized():
 def test_update_candidate_profile_not_a_candidate():
     client = APIClient()
     country = Country.objects.create(name="Test Country")
-    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    city = City.objects.create(
+        name="Test City", country=country, province="Test Province", zip_code="12345"
+    )
     user = User.objects.create_user(
         email="employer@gmail.com",
         password="<PASSWORD>",

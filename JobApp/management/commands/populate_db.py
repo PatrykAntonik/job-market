@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand
-from JobApp.models import *
-from faker import Faker
 import random
+
+from django.core.management.base import BaseCommand
+from faker import Faker
+
+from JobApp.models import *
 
 
 class Command(BaseCommand):
