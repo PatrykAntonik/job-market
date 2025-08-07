@@ -52,3 +52,14 @@ candidate_education_list_docs = extend_schema(
     responses={200: CandidateEducationSerializer(many=True)},
     tags=["Candidates"],
 )
+
+candidate_profile_docs = extend_schema(
+    summary="Manage candidate profile",
+    description="Allows an authenticated candidate to view and update their own profile.",
+    responses={
+        200: CandidateSerializer,
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden"},
+    },
+    tags=["Candidates"],
+)

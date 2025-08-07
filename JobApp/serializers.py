@@ -49,12 +49,40 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return UserSerializerToken(instance).data
 
 
+# class CandidateRegistrationSerializer(serializers.ModelSerializer):
+#     user = UserRegistrationSerializer()
+#
+#     class Meta:
+#         model = Candidate
+#         fields = ["user", "resume", "about"]
+#
+#     def validate_resume(self, value):
+#         if not value.name.endswith('.pdf'):
+#             raise serializers.ValidationError("Resume must be a PDF file")
+#         return value
+#
+#     def create(self, validated_data):
+#         user_data = validated_data.pop("user")
+#         user_serializer = UserSerializer(data=user_data)
+#         user_serializer.is_valid(raise_exception=True)
+#         user = user_serializer.save()
+#         candidate = Candidate.objects.create(user=user, **validated_data)
+#         return candidate
+
 class CandidateRegistrationSerializer(serializers.ModelSerializer):
-    user = UserRegistrationSerializer()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    phone_number = serializers.CharField()
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all())
 
     class Meta:
         model = Candidate
-        fields = ["user", "resume", "about"]
+        fields = [
+            "first_name", "last_name", "email", "password",
+            "phone_number", "city", "resume", "about"
+        ]
 
     def validate_resume(self, value):
         if not value.name.endswith('.pdf'):
@@ -62,15 +90,30 @@ class CandidateRegistrationSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        user_data = validated_data.pop("user")
-        user_serializer = UserSerializer(data=user_data)
-        user_serializer.is_valid(raise_exception=True)
-        user = user_serializer.save()
+        user = User.objects.create_user(
+            first_name=validated_data.pop("first_name"),
+            last_name=validated_data.pop("last_name"),
+            email=validated_data.pop("email"),
+            password=validated_data.pop("password"),
+            phone_number=validated_data.pop("phone_number"),
+            city=validated_data.pop("city"),
+        )
         candidate = Candidate.objects.create(user=user, **validated_data)
         return candidate
 
+    def to_representation(self, instance):
+        return CandidateSerializer(instance, context=self.context).data
+
 
 class CandidateSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Candidate
+        fields = ["id", "user", "resume", "about"]
+
+
+class CandidateSerializerWithTotalExp(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     total_experience = serializers.SerializerMethodField(read_only=True)
 
@@ -238,3 +281,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "first_name", "last_name", "email", "phone_number", "city"]
+
+
+class CandidateProfileSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+    phone_number = serializers.CharField(required=False)
+    city = serializers.PrimaryKeyRelatedField(queryset=City.objects.all(), required=False)
+
+    class Meta:
+        model = Candidate
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'city', 'resume', 'about']
+
+    def to_representation(self, instance):
+        return CandidateSerializer(instance).data

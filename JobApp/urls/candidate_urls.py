@@ -7,7 +7,7 @@ urlpatterns = [
     path("<int:pk>/education/", CandidateEducationListView.as_view(), name="candidate_education"),
     path("register/", RegisterCandidateView.as_view(), name="register"),
 
-    # path("profile/", CandidateProfileView.as_view(), name="profile"),
+    path("profile/", CandidateProfileView.as_view(), name="profile"),
 
     path("<int:pk>/", CandidateDetailView.as_view(), name="candidate"),
     path("", CandidateListView.as_view(), name="candidates"),

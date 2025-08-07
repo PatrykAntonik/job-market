@@ -5,6 +5,7 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
     HTTP_403_FORBIDDEN,
     HTTP_401_UNAUTHORIZED,
+    HTTP_201_CREATED,
 )
 from JobApp.views.employer_views import *
 from rest_framework.test import APIClient
@@ -840,3 +841,178 @@ def test_get_candidate_education_without_permission():
     assert (
             response.json() == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
+
+
+@pytest.mark.django_db
+def test_register_candidate_success():
+    client = APIClient()
+    country = Country.objects.create(
+        name="Test Country",
+    )
+    city = City.objects.create(
+        name="Test City", country=country, province="Test Province", zip_code="12345"
+    )
+    data = {
+        "email": "test@gmail.com",
+        "password": "testpassword",
+        "phone_number": "1234567890",
+        "city": city.id,
+        "first_name": "John",
+        "last_name": "Doe",
+        "about": "about me",
+        "resume": SimpleUploadedFile(
+            "resume.pdf", b"pdf content", content_type="application/pdf"
+        ),
+    }
+    response = client.post("/api/candidates/register/", data, format="multipart")
+    user = User.objects.get(email="test@gmail.com")
+    candidate = Candidate.objects.get(user=user)
+    expected_data = {
+        "id": candidate.id,
+        "user": {
+            "id": user.id,
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "test@gmail.com",
+            "city": city.id,
+            "phone_number": "1234567890",
+        },
+        "resume": f"http://testserver/media/{candidate.resume.name}",
+        "about": "about me",
+    }
+    assert (
+            response.status_code == HTTP_201_CREATED
+    ), f"Expected status code 201 but got {response.status_code}"
+    assert (
+            response.json() == expected_data
+    ), f"Expected: {expected_data}, but got: {response.json()}"
+
+
+@pytest.mark.django_db
+def test_get_candidate_profile_success():
+    client = APIClient()
+    country = Country.objects.create(name="Test Country")
+    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    user = User.objects.create_user(
+        email="test@gmail.com",
+        password="<PASSWORD>",
+        phone_number="1234567890",
+        city=city,
+        first_name="John",
+        last_name="Doe",
+    )
+    candidate = Candidate.objects.create(
+        user=user,
+        about="about candidate",
+        resume=SimpleUploadedFile("resume.pdf", b"pdf content", content_type="application/pdf"),
+    )
+    client.force_authenticate(user=user)
+    response = client.get("/api/candidates/profile/")
+    expected_data = {
+        "id": candidate.id,
+        "user": {
+            "id": user.id,
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "test@gmail.com",
+            "city": city.id,
+            "phone_number": "1234567890",
+        },
+        "resume": f"http://testserver/media/{candidate.resume.name}",
+        "about": "about candidate",
+    }
+    assert response.status_code == HTTP_200_OK
+    assert response.json() == expected_data
+
+
+@pytest.mark.django_db
+def test_get_candidate_profile_unauthorized():
+    client = APIClient()
+    response = client.get("/api/candidates/profile/")
+    assert response.status_code == HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_get_candidate_profile_not_a_candidate():
+    client = APIClient()
+    country = Country.objects.create(name="Test Country")
+    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    user = User.objects.create_user(
+        email="employer@gmail.com",
+        password="<PASSWORD>",
+        phone_number="1234567890",
+        city=city,
+    )
+    Industry.objects.create(name="Test Industry")
+    Employer.objects.create(
+        user=user,
+        company_name="Test Employer",
+        website_url="www.test.com",
+        description="Test employer",
+        industry=Industry.objects.first(),
+    )
+    client.force_authenticate(user=user)
+    response = client.get("/api/candidates/profile/")
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_update_candidate_profile_success():
+    client = APIClient()
+    country = Country.objects.create(name="Test Country")
+    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    user = User.objects.create_user(
+        email="test@gmail.com",
+        password="<PASSWORD>",
+        phone_number="1234567890",
+        city=city,
+        first_name="John",
+        last_name="Doe",
+    )
+    candidate = Candidate.objects.create(
+        user=user,
+        about="about candidate",
+        resume=SimpleUploadedFile("resume.pdf", b"pdf content", content_type="application/pdf"),
+    )
+    client.force_authenticate(user=user)
+    update_data = {
+        "about": "updated about",
+    }
+    response = client.patch("/api/candidates/profile/", update_data, format="json")
+    assert response.status_code == HTTP_200_OK
+    user.refresh_from_db()
+    candidate.refresh_from_db()
+    assert candidate.about == "updated about"
+
+
+@pytest.mark.django_db
+def test_update_candidate_profile_unauthorized():
+    client = APIClient()
+    update_data = {"about": "updated about"}
+    response = client.patch("/api/candidates/profile/", update_data, format="json")
+    assert response.status_code == HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_update_candidate_profile_not_a_candidate():
+    client = APIClient()
+    country = Country.objects.create(name="Test Country")
+    city = City.objects.create(name="Test City", country=country, province="Test Province", zip_code="12345")
+    user = User.objects.create_user(
+        email="employer@gmail.com",
+        password="<PASSWORD>",
+        phone_number="1234567890",
+        city=city,
+    )
+    Industry.objects.create(name="Test Industry")
+    Employer.objects.create(
+        user=user,
+        company_name="Test Employer",
+        website_url="www.test.com",
+        description="Test employer",
+        industry=Industry.objects.first(),
+    )
+    client.force_authenticate(user=user)
+    update_data = {"about": "updated about"}
+    response = client.patch("/api/candidates/profile/", update_data, format="json")
+    assert response.status_code == HTTP_404_NOT_FOUND

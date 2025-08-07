@@ -23,7 +23,7 @@ from rest_framework import status
 @candidate_list_docs
 class CandidateListView(CandidateWithExperienceMixin, generics.ListAPIView):
     queryset = Candidate.objects.all()
-    serializer_class = CandidateSerializer
+    serializer_class = CandidateSerializerWithTotalExp
     permission_classes = [IsEmployer]
     filter_backends = [
         DjangoFilterBackend,
@@ -33,14 +33,14 @@ class CandidateListView(CandidateWithExperienceMixin, generics.ListAPIView):
     filterset_class = CandidateFilter
     pagination_class = OptionalPagination
     search_fields = ["user__first_name", "user__last_name", "user__email"]
-    ordering_fields = ["user__city__name"]
+    ordering_fields = ["id", "user__city__name", "user__city__country__name"]
     ordering = ["id"]
 
 
 @candidate_detail_docs
 class CandidateDetailView(CandidateWithExperienceMixin, generics.RetrieveAPIView):
     queryset = Candidate.objects.all()
-    serializer_class = CandidateSerializer
+    serializer_class = CandidateSerializerWithTotalExp
     permission_classes = [IsEmployer]
 
 
@@ -55,7 +55,7 @@ class CandidateSkillListView(generics.ListAPIView):
 
 
 @candidate_experience_list_docs
-class CandidateExperienceListView(CandidateWithExperienceMixin, generics.ListAPIView):
+class CandidateExperienceListView(generics.ListAPIView):
     serializer_class = CandidateExperienceSerializer
     permission_classes = [IsEmployer]
 
@@ -92,6 +92,19 @@ class RegisterCandidateView(generics.CreateAPIView):
             errors = serializer.errors
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class CandidateProfileView(generics.RetrieveUpdateDestroyAPIView):
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = CandidateSerializer
+
+@candidate_profile_docs
+class CandidateProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CandidateSerializer
+
+    def get_object(self):
+        return get_object_or_404(Candidate, user=self.request.user)
+
+
+class CandidateEducationProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CandidateEducationSerializer
+
+    def get_object(self):
+        return get_object_or_404(CandidateEducation, candidate__user=self.request.user)

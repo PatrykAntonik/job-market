@@ -42,7 +42,6 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Generate token for the new user
         token_serializer = MyTokenObtainPairSerializer(data=request.data)
         token_serializer.is_valid(raise_exception=True)
 
