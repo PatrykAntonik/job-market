@@ -45,4 +45,5 @@ pytest = "^8.4.1"
 pytest-django = "^4.11.1"
 pytest-xdist = "^3.8.0"
 faker = "^37.5.3"
+python-dotenv = "^1.1.1"
 

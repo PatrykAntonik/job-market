@@ -102,9 +102,3 @@ class CandidateProfileView(generics.RetrieveUpdateAPIView):
         return get_object_or_404(Candidate, user=self.request.user)
 
 
-class CandidateEducationProfileView(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = CandidateEducationSerializer
-
-    def get_object(self):
-        return get_object_or_404(CandidateEducation, candidate__user=self.request.user)

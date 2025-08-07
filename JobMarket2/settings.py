@@ -1,10 +1,19 @@
+import os
 from pathlib import Path
 from datetime import timedelta
 from django.conf import settings
+from dotenv import load_dotenv
+
+load_dotenv()
+
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_DB = os.getenv("POSTGRES_DB")
+DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-si52vse)cod%hp$a0z^yp4o605k)o+6ha(sf9_i^)*!ch@xo2r"
+SECRET_KEY = DJANGO_SECRET_KEY
 
 DEBUG = True
 
@@ -113,9 +122,9 @@ WSGI_APPLICATION = "JobMarket2.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "job_market",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
+        "NAME": POSTGRES_DB,
+        "USER": POSTGRES_USER,
+        "PASSWORD": POSTGRES_PASSWORD,
         "HOST": "localhost",
         "PORT": 5432,
     }
