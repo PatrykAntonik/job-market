@@ -1,6 +1,18 @@
+"""
+This file contains the URL patterns for user-related views in the JobApp application.
+"""
+
 from django.urls import path
 
-from JobApp.views.user_views import *
+from JobApp.views.user_views import (
+    MyTokenObtainPairView,
+    UpdateUserPasswordView,
+    UserDetailView,
+    UserListView,
+    UserProfileView,
+    UserRegistrationView,
+)
+
 
 urlpatterns = [
     path("login/", MyTokenObtainPairView.as_view(), name="login"),

@@ -1,6 +1,19 @@
+"""
+This file contains the URL patterns for candidate-related views in the JobApp application.
+"""
+
 from django.urls import path
 
-from JobApp.views.candidate_views import *
+from JobApp.views.candidate_views import (
+    CandidateDetailView,
+    CandidateEducationListView,
+    CandidateExperienceListView,
+    CandidateListView,
+    CandidateProfileView,
+    CandidateSkillListView,
+    RegisterCandidateView,
+)
+
 
 urlpatterns = [
     path("<int:pk>/skills/", CandidateSkillListView.as_view(), name="candidate_skills"),

@@ -1,14 +1,43 @@
+"""
+This script populates the database with fake data for testing purposes.
+"""
+
 import random
 
 from django.core.management.base import BaseCommand
 from faker import Faker
 
-from JobApp.models import *
+from JobApp.models import (
+    Benefit,
+    Candidate,
+    CandidateEducation,
+    CandidateExperience,
+    CandidateSkill,
+    City,
+    Country,
+    Employer,
+    EmployerLocation,
+    Industry,
+    JobOffer,
+    JobOfferSkill,
+    OfferResponse,
+    Skill,
+    User,
+)
 
 
 class Command(BaseCommand):
+    """
+    Command to populate the database with fake data.
+    """
 
     def handle(self, *args, **kwargs):
+        """
+        Handle the command to populate the database with fake data.
+        :param args:
+        :param kwargs:
+        :return:
+        """
         records_num = 50
         self.stdout.write("Populating database...")
         fake = Faker()
@@ -50,7 +79,7 @@ class Command(BaseCommand):
             )
             candidate = Candidate.objects.create(
                 user=user,
-                resume=f'resumes/{fake.file_name(extension="pdf")}',
+                resume=f"resumes/{fake.file_name(extension='pdf')}",
                 about=fake.paragraph(),
             )
             candidates.append(candidate)
@@ -86,7 +115,7 @@ class Command(BaseCommand):
             employer.benefits.set(
                 random.sample(benefits, k=random.randint(1, len(benefits)))
             )
-        self.stdout.write(self.style.SUCCESS(f"Assigned benefits to employers."))
+        self.stdout.write(self.style.SUCCESS("Assigned benefits to employers."))
 
         skills = []
         for _ in range(records_num):
@@ -95,11 +124,16 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Created {len(skills)} skills."))
 
         candidate_skills = []
-        for _ in range(records_num):
-            candidate_skill = CandidateSkill.objects.create(
-                candidate=random.choice(candidates), skill=random.choice(skills)
-            )
-            candidate_skills.append(candidate_skill)
+        created_pairs = set()
+        while len(candidate_skills) < records_num:
+            candidate = random.choice(candidates)
+            skill = random.choice(skills)
+            if (candidate.id, skill.id) not in created_pairs:
+                candidate_skill = CandidateSkill.objects.create(
+                    candidate=candidate, skill=skill
+                )
+                candidate_skills.append(candidate_skill)
+                created_pairs.add((candidate.id, skill.id))
         self.stdout.write(
             self.style.SUCCESS(f"Created {len(candidate_skills)} candidate skills.")
         )
@@ -179,21 +213,29 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Created {len(job_offers)} job offers."))
 
         job_offer_skills = []
-        for _ in range(records_num):
-            job_offer_skill = JobOfferSkill.objects.create(
-                offer=random.choice(job_offers), skill=random.choice(skills)
-            )
-            job_offer_skills.append(job_offer_skill)
+        created_pairs = set()
+        while len(job_offer_skills) < records_num:
+            offer = random.choice(job_offers)
+            skill = random.choice(skills)
+            if (offer.id, skill.id) not in created_pairs:
+                job_offer_skill = JobOfferSkill.objects.create(offer=offer, skill=skill)
+                job_offer_skills.append(job_offer_skill)
+                created_pairs.add((offer.id, skill.id))
         self.stdout.write(
             self.style.SUCCESS(f"Created {len(job_offer_skills)} job offer skills.")
         )
 
         offer_responses = []
-        for _ in range(records_num):
-            offer_response = OfferResponse.objects.create(
-                offer=random.choice(job_offers), candidate=random.choice(candidates)
-            )
-            offer_responses.append(offer_response)
+        created_pairs = set()
+        while len(offer_responses) < records_num:
+            offer = random.choice(job_offers)
+            candidate = random.choice(candidates)
+            if (offer.id, candidate.id) not in created_pairs:
+                offer_response = OfferResponse.objects.create(
+                    offer=offer, candidate=candidate
+                )
+                offer_responses.append(offer_response)
+                created_pairs.add((offer.id, candidate.id))
         self.stdout.write(
             self.style.SUCCESS(f"Created {len(offer_responses)} offer responses.")
         )
@@ -201,6 +243,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Database population complete!"))
 
     def clear_data(self):
+        """
+        Clear existing data from the database.
+        """
         self.stdout.write("Clearing existing data...")
         OfferResponse.objects.all().delete()
         JobOfferSkill.objects.all().delete()

@@ -2,6 +2,10 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class OptionalPagination(PageNumberPagination):
+    """
+    Custom pagination class that allows for optional pagination.
+    """
+
     page_size = 10
     page_size_query_param = "page_size"
 

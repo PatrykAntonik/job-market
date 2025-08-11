@@ -1,10 +1,16 @@
 import pytest
-from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
-                                   HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST,
-                                   HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN,
-                                   HTTP_404_NOT_FOUND)
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT,
+    HTTP_400_BAD_REQUEST,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+)
 from rest_framework.test import APIClient
 
+from JobApp.models import City, Country, User
 from JobApp.views.user_views import *
 
 

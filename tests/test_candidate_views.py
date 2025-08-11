@@ -1,11 +1,26 @@
-import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
-from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
-                                   HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN,
-                                   HTTP_404_NOT_FOUND)
+import pytest
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+)
 from rest_framework.test import APIClient
 
-from JobApp.views.employer_views import *
+from JobApp.models import (
+    Candidate,
+    CandidateEducation,
+    CandidateExperience,
+    CandidateSkill,
+    City,
+    Country,
+    Employer,
+    Industry,
+    Skill,
+    User,
+)
 
 
 @pytest.mark.django_db

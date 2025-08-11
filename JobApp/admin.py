@@ -5,6 +5,8 @@ from .models import *
 
 
 class CustomUserAdmin(UserAdmin):
+    """Custom admin interface for the User model."""
+
     model = User
     list_display = ("email", "first_name", "last_name", "is_staff")
     list_filter = ("is_staff",)

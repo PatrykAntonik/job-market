@@ -397,5 +397,8 @@ class OfferResponse(models.Model):
     offer = models.ForeignKey(JobOffer, on_delete=models.CASCADE)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ("offer", "candidate")
+
     def __str__(self):
         return f"{self.candidate.user.first_name} {self.candidate.user.last_name} applied to {self.offer.employer.company_name} - {self.offer.description}"

@@ -1,0 +1,39 @@
+name: CI/CD pipeline for main branch
+run-name: ${{ github.actor }}
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      skip_lint:
+        description: "Skip lint stage"
+        type: boolean
+        required: false
+        default: false
+jobs:
+  test:
+    if: ${{ !github.event.inputs.skip_lint }}
+    name: Test, lint and format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+        env:
+          POETRY_VIRTUALENVS_CREATE: "false"
+      - name: Check code formatting
+        run: black JobMarket2 JobApp --check
+      - name: Check import sorting
+        run: isort -c JobApp JobMarket2
+      - name: Check code linting
+        run: pylint --fail-under=8.0 JobApp JobMarket2
+      - name: Run tests
+        run: pytest -n auto

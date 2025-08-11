@@ -1,22 +1,35 @@
-from django.contrib.auth.hashers import make_password
-from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework import filters, generics, status
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from docs.user_docs import *
 from JobApp.filters import UserFilter
+from JobApp.models import User
 from JobApp.pagination import OptionalPagination
-from JobApp.permissions import IsEmployer
-from JobApp.serializers import *
+from JobApp.serializers import (
+    UpdateUserPasswordSerializer,
+    UserProfileSerializer,
+    UserRegistrationSerializer,
+    UserSerializer,
+    UserSerializerToken,
+)
+from docs.user_docs import (
+    register_user_docs,
+    update_user_password_docs,
+    user_detail_docs,
+    user_list_docs,
+    user_profile_docs,
+)
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Custom serializer for obtaining JWT tokens that includes user data in the response.
+    """
+
     username_field = "email"
 
     def validate(self, attrs):
@@ -28,11 +41,19 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 @extend_schema(tags=["Users"])
 class MyTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom token obtain pair view to include user data in the response.
+    """
+
     serializer_class = MyTokenObtainPairSerializer
 
 
 @register_user_docs
 class UserRegistrationView(generics.CreateAPIView):
+    """
+    View for user registration.
+    """
+
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
@@ -54,6 +75,12 @@ class UserRegistrationView(generics.CreateAPIView):
 
 @user_list_docs
 class UserListView(generics.ListAPIView):
+    """
+    View to list all users.
+
+    Only accessible by admin users.
+    """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
@@ -77,6 +104,12 @@ class UserListView(generics.ListAPIView):
 
 @user_profile_docs
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    View for retrieving, updating and deleting a user's profile.
+
+    The user can only access their own profile.
+    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UserProfileSerializer
 
@@ -96,6 +129,12 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
 
 @user_detail_docs
 class UserDetailView(generics.RetrieveAPIView):
+    """
+    View to retrieve a user's details.
+
+    Only accessible by admin users.
+    """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
@@ -103,6 +142,12 @@ class UserDetailView(generics.RetrieveAPIView):
 
 @update_user_password_docs
 class UpdateUserPasswordView(generics.UpdateAPIView):
+    """
+    View to update the password of the authenticated user.
+
+    The user must provide their current password to update to a new password.
+    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = UpdateUserPasswordSerializer
 

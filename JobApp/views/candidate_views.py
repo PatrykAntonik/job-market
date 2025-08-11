@@ -1,25 +1,44 @@
-from datetime import date
-
-from django.db.models import DurationField, ExpressionWrapper, F, Sum
-from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from docs.candidate_docs import *
 from JobApp.filters import CandidateFilter
-from JobApp.mixins import *
-from JobApp.models import *
+from JobApp.mixins import CandidateWithExperienceMixin
+from JobApp.models import (
+    Candidate,
+    CandidateEducation,
+    CandidateExperience,
+    CandidateSkill,
+)
 from JobApp.pagination import OptionalPagination
 from JobApp.permissions import IsEmployer
-from JobApp.serializers import *
+from JobApp.serializers import (
+    CandidateEducationSerializer,
+    CandidateExperienceSerializer,
+    CandidateRegistrationSerializer,
+    CandidateSerializer,
+    CandidateSerializerWithTotalExp,
+    CandidateSkillSerializer,
+)
+from docs.candidate_docs import (
+    candidate_detail_docs,
+    candidate_education_list_docs,
+    candidate_experience_list_docs,
+    candidate_list_docs,
+    candidate_profile_docs,
+    candidate_skill_list_docs,
+    register_candidate_docs,
+)
 
 
 @candidate_list_docs
 class CandidateListView(CandidateWithExperienceMixin, generics.ListAPIView):
+    """
+    List all candidates with their total experience.
+    """
+
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializerWithTotalExp
     permission_classes = [IsEmployer]
@@ -37,6 +56,10 @@ class CandidateListView(CandidateWithExperienceMixin, generics.ListAPIView):
 
 @candidate_detail_docs
 class CandidateDetailView(CandidateWithExperienceMixin, generics.RetrieveAPIView):
+    """
+    Retrieve a candidate's details along with their total experience.
+    """
+
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializerWithTotalExp
     permission_classes = [IsEmployer]
@@ -44,6 +67,10 @@ class CandidateDetailView(CandidateWithExperienceMixin, generics.RetrieveAPIView
 
 @candidate_skill_list_docs
 class CandidateSkillListView(generics.ListAPIView):
+    """
+    List all skills of a candidate.
+    """
+
     serializer_class = CandidateSkillSerializer
     permission_classes = [IsEmployer]
 
@@ -54,6 +81,10 @@ class CandidateSkillListView(generics.ListAPIView):
 
 @candidate_experience_list_docs
 class CandidateExperienceListView(generics.ListAPIView):
+    """
+    List all experiences of a candidate.
+    """
+
     serializer_class = CandidateExperienceSerializer
     permission_classes = [IsEmployer]
 
@@ -66,6 +97,10 @@ class CandidateExperienceListView(generics.ListAPIView):
 
 @candidate_education_list_docs
 class CandidateEducationListView(generics.ListAPIView):
+    """
+    List all education records of a candidate.
+    """
+
     serializer_class = CandidateEducationSerializer
     permission_classes = [IsEmployer]
 
@@ -78,6 +113,10 @@ class CandidateEducationListView(generics.ListAPIView):
 
 @register_candidate_docs
 class RegisterCandidateView(generics.CreateAPIView):
+    """
+    Register a new candidate.
+    """
+
     serializer_class = CandidateRegistrationSerializer
 
     def create(self, request, *args, **kwargs):
@@ -88,13 +127,16 @@ class RegisterCandidateView(generics.CreateAPIView):
             return Response(
                 serializer.data, status=status.HTTP_201_CREATED, headers=headers
             )
-        else:
-            errors = serializer.errors
-            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        errors = serializer.errors
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @candidate_profile_docs
 class CandidateProfileView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieve and update the profile of the authenticated candidate.
+    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = CandidateSerializer
 
@@ -102,7 +144,14 @@ class CandidateProfileView(generics.RetrieveUpdateAPIView):
         return get_object_or_404(Candidate, user=self.request.user)
 
 
+# TODO- create/finish candidate profile view for education, experience, and skills
+
+
 class CandidateEducationProfileView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieve and update the education profile of the authenticated candidate.
+    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = CandidateEducationSerializer
 

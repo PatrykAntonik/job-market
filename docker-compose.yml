@@ -1,22 +1,35 @@
-version: "3.8"
 services:
   db:
-    image: postgres:13
+    image: postgres:16.9-alpine
+    container_name: job-market-db
+    env_file:
+      - .env
     volumes:
-      - ./data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    container_name: db_container
-  app:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "8001:5432"
+  api:
     build: .
     volumes:
       - .:/app
     ports:
       - "8000:8000"
-    image: app
-    container_name: app_container
-    command: python manage.py runserver 0.0.0.0:8000
+    image: job-market-image
+    container_name: job-market
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      USE_LOCAL_DB: "true"
+    command: >
+      sh -lc '
+        pip install --no-cache-dir faker &&
+        python manage.py migrate &&
+        python manage.py populate_db &&
+        python manage.py runserver 0.0.0.0:8000
+      '
     depends_on:
       - db
+
+volumes:
+  db_data:

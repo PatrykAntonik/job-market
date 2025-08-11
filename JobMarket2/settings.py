@@ -1,22 +1,28 @@
-import os
 from datetime import timedelta
+import os
 from pathlib import Path
 
-from django.conf import settings
-from dotenv import load_dotenv
+import dj_database_url
 
-load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+env_path = BASE_DIR / ".env"
+if env_path.exists():
+    try:
+        from dotenv import load_dotenv
+
+        load_dotenv(env_path)
+    except ImportError:
+        pass
 
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DB = os.getenv("POSTGRES_DB")
-DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-insecure-secret-key")
+USE_LOCAL_DB = os.getenv("USE_LOCAL_DB", "false").lower() == "true"
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-SECRET_KEY = DJANGO_SECRET_KEY
-
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 ALLOWED_HOSTS = []
 
@@ -61,7 +67,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": settings.SECRET_KEY,
+    "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
@@ -120,16 +126,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "JobMarket2.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": POSTGRES_DB,
-        "USER": POSTGRES_USER,
-        "PASSWORD": POSTGRES_PASSWORD,
-        "HOST": "localhost",
-        "PORT": 5432,
+if USE_LOCAL_DB:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": POSTGRES_DB,
+            "USER": POSTGRES_USER,
+            "PASSWORD": POSTGRES_PASSWORD,
+            "HOST": DB_HOST,
+            "PORT": 5432,
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": dj_database_url.config(
+            env="DATABASE_URL", conn_max_age=600, ssl_require=True
+        )
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -157,6 +170,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 STATIC_FILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

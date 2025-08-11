@@ -1,9 +1,42 @@
-README.md
-CHANGELOG.md
-docker-compose.yml
-Dockerfile
+# Git and GitHub files
 .git
-.gitattributes
+.github
 .gitignore
-.idea
-__pycache__
+
+# IDE and development tool configuration
+.idea/
+.vscode/
+.pylintrc
+.pre-commit-config.yaml
+.ruff_cache/
+
+# Python cache and artifacts
+__pycache__/
+*.py[cod]
+.Python
+build/
+dist/
+*.egg-info/
+.cache/
+.mypy_cache/
+.pytest_cache/
+
+# Testing
+tests/
+pytest.ini
+.coverage
+
+# Environment and local settings
+.env
+*.env
+local_settings.py
+
+# Documentation (README.md is needed for the build)
+docs/
+
+# Docker related files that shouldn't be in the image
+Dockerfile
+docker-compose.yml
+
+# Media files
+media/

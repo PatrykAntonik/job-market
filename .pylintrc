@@ -1,0 +1,10 @@
+[MASTER]
+load-plugins=pylint_django
+django-settings-module=JobMarket2.settings
+init-hook='import sys; sys.path.append(".")'
+ignore=migrations,tests,docs,settings,manage.py
+ignore-paths=JobMarket2/settings,JobApp/admin.py,JobApp/apps.py
+[MESSAGES CONTROL]
+disable=missing-module-docstring,W0223
+[FORMAT]
+max-line-length = 130

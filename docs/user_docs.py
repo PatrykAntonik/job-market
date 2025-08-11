@@ -1,9 +1,16 @@
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+"""
+Documentation for User API Endpoints
+"""
 
-from JobApp.serializers import (UpdateUserPasswordSerializer,
-                                UserRegistrationSerializer, UserSerializer,
-                                UserSerializerToken)
+from drf_spectacular.utils import extend_schema
+
+from JobApp.serializers import (
+    UpdateUserPasswordSerializer,
+    UserRegistrationSerializer,
+    UserSerializer,
+    UserSerializerToken,
+)
+
 
 user_list_docs = extend_schema(
     summary="List all users",

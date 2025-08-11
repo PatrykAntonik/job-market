@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-market-api
+  namespace: jobmarket
+  labels:
+    app: job-market-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: job-market-api
+  template:
+    metadata:
+      name: job-market-api
+      labels:
+        app: job-market-api
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: job-market-api
+          image: patryka2000/job-market
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+
+          readinessProbe:
+              httpGet:
+                path: /
+                port: 8000
+              initialDelaySeconds: 3
+              periodSeconds: 5
+
+          livenessProbe:
+              httpGet:
+                path: /
+                port: 8000
+              initialDelaySeconds: 20
+              periodSeconds: 10
+              failureThreshold: 3
+
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 10
