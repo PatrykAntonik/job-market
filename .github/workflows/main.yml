@@ -38,4 +38,10 @@ jobs:
       - name: Check code linting
         run: poetry run pylint --fail-under=8.0 JobApp JobMarket2
       - name: Run tests
-        run: poetry run pytest -n auto
+        run: poetry run pytest -n auto --html=pytest-report.html --self-contained-html
+        continue-on-error: true
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-html
+          path: pytest-report.html
