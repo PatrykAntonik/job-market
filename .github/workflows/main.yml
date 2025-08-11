@@ -31,8 +31,6 @@ jobs:
           poetry config virtualenvs.in-project true
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
-        env:
-          POETRY_VIRTUALENVS_CREATE: "false"
       - name: Check code formatting
         run: black JobMarket2 JobApp --check
       - name: Check import sorting
