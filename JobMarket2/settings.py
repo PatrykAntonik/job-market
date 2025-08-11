@@ -127,11 +127,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "JobMarket2.wsgi.application"
 
-if os.getenv("PYTEST_CURRENT_TEST"):
-    DATABASES = {
-        "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
-    }
-elif USE_LOCAL_DB:
+if USE_LOCAL_DB:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",

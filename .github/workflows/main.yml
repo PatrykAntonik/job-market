@@ -16,6 +16,8 @@ jobs:
     if: ${{ !github.event.inputs.skip_lint }}
     name: Test, lint and format
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
