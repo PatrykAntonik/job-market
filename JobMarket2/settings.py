@@ -1,6 +1,7 @@
 from datetime import timedelta
 import os
 from pathlib import Path
+import sys
 
 import dj_database_url
 
@@ -126,7 +127,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "JobMarket2.wsgi.application"
 
-if USE_LOCAL_DB:
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+        }
+    }
+elif USE_LOCAL_DB:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
