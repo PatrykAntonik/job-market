@@ -39,14 +39,4 @@ jobs:
         run: poetry run pylint --fail-under=8.0 JobApp JobMarket2
       - name: Run tests
         id: tests
-        run: poetry run pytest -n auto --html=pytest-report.html --self-contained-html
-        continue-on-error: true
-      - name: Upload test report
-        if: steps.tests.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-html
-          path: pytest-report.html
-      - name: Fail job if tests failed
-        if: steps.tests.outcome == 'failure'
-        run: exit 1
+        run: poetry run pytest -n auto
