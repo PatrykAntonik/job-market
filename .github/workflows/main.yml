@@ -32,10 +32,10 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
       - name: Check code formatting
-        run: black JobMarket2 JobApp --check
+        run: poetry run black JobMarket2 JobApp --check
       - name: Check import sorting
-        run: isort -c JobApp JobMarket2
+        run: poetry run isort -c JobApp JobMarket2
       - name: Check code linting
-        run: pylint --fail-under=8.0 JobApp JobMarket2
+        run: poetry run pylint --fail-under=8.0 JobApp JobMarket2
       - name: Run tests
-        run: pytest -n auto
+        run: poetry run pytest -n auto
