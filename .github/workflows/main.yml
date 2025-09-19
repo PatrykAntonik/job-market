@@ -42,7 +42,7 @@ jobs:
       - name: Run tests
         id: tests
         continue-on-error: true
-        run: poetry run pytest -n auto --nomigrations --reuse-db --html=pytest-report.html --self-contained-html
+        run: poetry run pytest -n auto  --html=pytest-report.html --self-contained-html
 
       - name: Upload pytest report
         uses: actions/upload-artifact@v4
