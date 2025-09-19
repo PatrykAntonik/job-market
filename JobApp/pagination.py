@@ -6,7 +6,7 @@ class OptionalPagination(PageNumberPagination):
     Custom pagination class that allows for optional pagination.
     """
 
-    page_size = 10
+    page_size = 50
     page_size_query_param = "page_size"
 
     def get_page_size(self, request):

@@ -1,5 +1,8 @@
+import os
+import uuid
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.core.validators import MinValueValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db import models
 from phone_field import PhoneField
 
@@ -92,8 +95,22 @@ class Candidate(models.Model):
     :type about: str or None
     """
 
+    def resume_upload_path(instance, filename):
+        """
+        Generate a unique path for each uploaded resume.
+        Example: resumes/5/5c3f9e5c-8f3b-4a94-bf9a-8e7a0d123abc.pdf
+        """
+        ext = os.path.splitext(filename)[1]
+        unique_name = f"{uuid.uuid4()}{ext}"
+        return f"resumes/{instance.user.id}/{unique_name}"
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    resume = models.FileField(upload_to="resumes/")
+    resume = models.FileField(
+        upload_to=resume_upload_path,
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "doc", "docx"])],
+    )
     about = models.TextField(blank=True, null=True)
 
     def __str__(self):

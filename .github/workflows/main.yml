@@ -51,6 +51,6 @@ jobs:
           name: pytest-report
           path: pytest-report.html
 
-      - name: Check test results
-        if: always() && steps.tests.outcome == 'failure'
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
         run: exit 1

@@ -24,11 +24,17 @@ from JobApp.serializers import (
 )
 from docs.candidate_docs import (
     candidate_detail_docs,
+    candidate_education_detail_docs,
     candidate_education_list_docs,
+    candidate_education_profile_docs,
+    candidate_experience_detail_docs,
     candidate_experience_list_docs,
+    candidate_experience_profile_docs,
     candidate_list_docs,
     candidate_profile_docs,
+    candidate_skill_detail_docs,
     candidate_skill_list_docs,
+    candidate_skill_profile_docs,
     register_candidate_docs,
 )
 
@@ -73,6 +79,7 @@ class CandidateSkillListView(generics.ListAPIView):
 
     serializer_class = CandidateSkillSerializer
     permission_classes = [IsEmployer]
+    pagination_class = OptionalPagination
 
     def get_queryset(self):
         candidate = get_object_or_404(Candidate, pk=self.kwargs["pk"])
@@ -87,6 +94,7 @@ class CandidateExperienceListView(generics.ListAPIView):
 
     serializer_class = CandidateExperienceSerializer
     permission_classes = [IsEmployer]
+    pagination_class = OptionalPagination
 
     def get_queryset(self):
         candidate = get_object_or_404(Candidate, pk=self.kwargs["pk"])
@@ -103,6 +111,7 @@ class CandidateEducationListView(generics.ListAPIView):
 
     serializer_class = CandidateEducationSerializer
     permission_classes = [IsEmployer]
+    pagination_class = OptionalPagination
 
     def get_queryset(self):
         candidate = get_object_or_404(Candidate, pk=self.kwargs["pk"])
@@ -144,16 +153,99 @@ class CandidateProfileView(generics.RetrieveUpdateAPIView):
         return get_object_or_404(Candidate, user=self.request.user)
 
 
-# TODO- create/finish candidate profile view for education, experience, and skills
-
-
-class CandidateEducationProfileView(generics.RetrieveUpdateAPIView):
+@candidate_skill_profile_docs
+class CandidateSkillProfileView(generics.ListAPIView):
     """
-    Retrieve and update the education profile of the authenticated candidate.
+    List all skills of the authenticated candidate.
     """
 
+    serializer_class = CandidateSkillSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = OptionalPagination
+
+    def get_queryset(self):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        return CandidateSkill.objects.filter(candidate=candidate).order_by("id")
+
+
+@candidate_education_profile_docs
+class CandidateEducationProfileView(generics.ListAPIView):
+    """
+    List all education records of the authenticated candidate.
+    """
+
     serializer_class = CandidateEducationSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = OptionalPagination
+
+    def get_queryset(self):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        return CandidateEducation.objects.filter(candidate=candidate).order_by(
+            "-is_current", "-date_to"
+        )
+
+
+@candidate_experience_profile_docs
+class CandidateExperienceProfileView(generics.ListAPIView):
+    """
+    List all experience records of the authenticated candidate.
+    """
+
+    serializer_class = CandidateExperienceSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = OptionalPagination
+
+    def get_queryset(self):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        return CandidateExperience.objects.filter(candidate=candidate).order_by(
+            "-is_current", "-date_to"
+        )
+
+
+@candidate_experience_detail_docs
+class CandidateExperienceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a specific experience record of the authenticated candidate.
+    """
+
+    serializer_class = CandidateExperienceSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return get_object_or_404(CandidateEducation, user=self.request.user.candidate)
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        experience_id = self.kwargs["pk"]
+        return get_object_or_404(
+            CandidateExperience, pk=experience_id, candidate=candidate
+        )
+
+
+@candidate_education_detail_docs
+class CandidateEducationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a specific education record of the authenticated candidate.
+    """
+
+    serializer_class = CandidateEducationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        education_id = self.kwargs["pk"]
+        return get_object_or_404(
+            CandidateEducation, pk=education_id, candidate=candidate
+        )
+
+
+@candidate_skill_detail_docs
+class CandidateSkillDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a specific skill record of the authenticated candidate.
+    """
+
+    serializer_class = CandidateSkillSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        skill_id = self.kwargs["pk"]
+        return get_object_or_404(CandidateSkill, pk=skill_id, candidate=candidate)

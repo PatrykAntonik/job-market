@@ -69,3 +69,57 @@ candidate_profile_docs = extend_schema(
     },
     tags=["Candidates"],
 )
+
+candidate_skill_profile_docs = extend_schema(
+    summary="List authenticated candidate's skills",
+    description="Returns a list of skills for the authenticated candidate.",
+    responses={200: CandidateSkillSerializer(many=True)},
+    tags=["Candidates"],
+)
+
+candidate_education_profile_docs = extend_schema(
+    summary="List authenticated candidate's educations",
+    description="Returns a list of educations for the authenticated candidate.",
+    responses={200: CandidateEducationSerializer(many=True)},
+    tags=["Candidates"],
+)
+
+candidate_experience_profile_docs = extend_schema(
+    summary="List authenticated candidate's experiences",
+    description="Returns a list of experiences for the authenticated candidate.",
+    responses={200: CandidateExperienceSerializer(many=True)},
+    tags=["Candidates"],
+)
+
+candidate_experience_detail_docs = extend_schema(
+    summary="Manage authenticated candidate's experience",
+    description="Allows an authenticated candidate to view, update and delete their own experience.",
+    responses={
+        200: CandidateExperienceSerializer,
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden"},
+    },
+    tags=["Candidates"],
+)
+
+candidate_education_detail_docs = extend_schema(
+    summary="Manage authenticated candidate's education",
+    description="Allows an authenticated candidate to view, update and delete their own education.",
+    responses={
+        200: CandidateEducationSerializer,
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden"},
+    },
+    tags=["Candidates"],
+)
+
+candidate_skill_detail_docs = extend_schema(
+    summary="Manage authenticated candidate's skill",
+    description="Allows an authenticated candidate to view, update and delete their own skill.",
+    responses={
+        200: CandidateSkillSerializer,
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden"},
+    },
+    tags=["Candidates"],
+)
