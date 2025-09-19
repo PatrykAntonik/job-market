@@ -25,7 +25,8 @@ USE_LOCAL_DB = os.getenv("USE_LOCAL_DB", "false").lower() == "true"
 
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_ALL_ORIGINS = True
 
 INSTALLED_APPS = [
     "django.contrib.admin",

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-market-service-lb
+  namespace: jobmarket
+spec:
+  type: LoadBalancer
+  selector:
+    app: job-market-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8000

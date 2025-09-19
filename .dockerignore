@@ -32,7 +32,6 @@ pytest.ini
 local_settings.py
 
 # Documentation (README.md is needed for the build)
-docs/
 
 # Docker related files that shouldn't be in the image
 Dockerfile

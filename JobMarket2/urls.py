@@ -25,6 +25,8 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from JobApp.views.test import health
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -35,6 +37,7 @@ urlpatterns = [
     # path("api/jobs/", include("JobApp.urls.job_urls")),
     path("api/users/", include("JobApp.urls.user_urls")),
     path("", SpectacularSwaggerView.as_view(), name="docs"),
+    path("health/", health, name="health"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

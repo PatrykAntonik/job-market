@@ -1,8 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: title
+  name: job-market-config
+  labels:
+    app: job-market-api
+  namespace: jobmarket
 data:
-  # kv format
-  key: "value"
-  $actual-config-file$: "name.properties"
+  DEBUG: "true"
