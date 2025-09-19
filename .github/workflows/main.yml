@@ -52,5 +52,5 @@ jobs:
           path: pytest-report.html
 
       - name: Fail if tests failed
-        if: steps.tests.outcome == 'failure'
+        if: ${{ steps.tests.outcome == 'failure' }}
         run: exit 1
