@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from JobApp.serializers import *
 
 
+# TODO - change to class based views
 @api_view(["GET"])
 def getEmployers(request):
     employers = Employer.objects.all()
@@ -11,6 +12,7 @@ def getEmployers(request):
     return Response(serializer.data)
 
 
+# TODO - change to class based views
 @api_view(["GET"])
 def getEmployer(request, pk):
     try:
@@ -21,6 +23,7 @@ def getEmployer(request, pk):
         return Response({"message": "Employer not found"}, status=404)
 
 
+# TODO - change to class based views
 @api_view(["GET"])
 def getEmployerLocation(request, pk):
     if not Employer.objects.filter(id=pk).exists():
@@ -31,3 +34,9 @@ def getEmployerLocation(request, pk):
         return Response(serializer.data)
     else:
         return Response({"message": "No locations found for this employer"}, status=404)
+
+
+# TODO - add register employer view
+# TODO - add employer profile view
+# TODO - add employer locations profile view
+# TODO - add employer location detailed view
