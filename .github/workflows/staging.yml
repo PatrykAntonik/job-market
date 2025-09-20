@@ -1,8 +1,8 @@
-name: CI/CD pipeline for main branch
+name: CI/CD pipeline for staging branches
 run-name: ${{ github.actor }}
 on:
-  pull_request:
-    branches:
+  push:
+    branches-ignore:
       - main
   workflow_dispatch:
     inputs:
