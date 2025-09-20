@@ -91,3 +91,17 @@
 #         return Response(
 #             {"message": "Job offers not found for this employer"}, status=404
 #         )
+# @api_view(["GET"])
+# def getIndustries(request):
+#     industries = Industry.objects.all()
+#     serializer = IndustrySerializer(industries, many=True)
+#     return Response(serializer.data)
+#
+# @api_view(["GET"])
+# def getIndustry(request, pk):
+#     try:
+#         industry = Industry.objects.get(id=pk)
+#         serializer = IndustrySerializer(industry, many=False)
+#         return Response(serializer.data)
+#     except Industry.DoesNotExist:
+#         return Response({"message": "Industry not found"}, status=404)

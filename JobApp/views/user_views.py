@@ -7,9 +7,11 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from JobApp.filters import UserFilter
-from JobApp.models import User
+from JobApp.models import City, Country, User
 from JobApp.pagination import OptionalPagination
 from JobApp.serializers import (
+    CitySerializer,
+    CountrySerializer,
     UpdateUserPasswordSerializer,
     UserProfileSerializer,
     UserRegistrationSerializer,
@@ -17,6 +19,10 @@ from JobApp.serializers import (
     UserSerializerToken,
 )
 from docs.user_docs import (
+    city_detail_docs,
+    city_list_docs,
+    country_detail_docs,
+    country_list_docs,
     register_user_docs,
     update_user_password_docs,
     user_detail_docs,
@@ -162,3 +168,35 @@ class UpdateUserPasswordView(generics.UpdateAPIView):
         return Response(
             {"message": "Password updated successfully"}, status=status.HTTP_200_OK
         )
+
+
+@country_list_docs
+class CountryListView(generics.ListAPIView):
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+    permission_classes = [AllowAny]
+    ordering = ["name"]
+    pagination_class = OptionalPagination
+
+
+@city_list_docs
+class CityListView(generics.ListAPIView):
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [AllowAny]
+    ordering = ["name"]
+    pagination_class = OptionalPagination
+
+
+@country_detail_docs
+class CountryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+    permission_classes = [IsAdminUser]
+
+
+@city_detail_docs
+class CityDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [IsAdminUser]
