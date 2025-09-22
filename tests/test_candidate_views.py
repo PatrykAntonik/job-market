@@ -23,6 +23,9 @@ from JobApp.models import (
 )
 
 
+# TODO- Clean tests, create fixtures for repeated code
+
+
 @pytest.mark.django_db
 def test_get_candidates_success():
     client = APIClient()
@@ -892,11 +895,15 @@ def test_register_candidate_success():
         "resume": f"http://testserver/media/{candidate.resume.name}",
         "about": "about me",
     }
+    response_data = response.json()
+    response_data.pop("access", None)
+    response_data.pop("refresh", None)
+
     assert (
         response.status_code == HTTP_201_CREATED
     ), f"Expected status code 201 but got {response.status_code}"
     assert (
-        response.json() == expected_data
+        response_data == expected_data
     ), f"Expected: {expected_data}, but got: {response.json()}"
 
 

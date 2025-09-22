@@ -172,6 +172,10 @@ class UpdateUserPasswordView(generics.UpdateAPIView):
 
 @country_list_docs
 class CountryListView(generics.ListAPIView):
+    """
+    View to list all countries.
+    """
+
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     permission_classes = [AllowAny]
@@ -181,6 +185,10 @@ class CountryListView(generics.ListAPIView):
 
 @city_list_docs
 class CityListView(generics.ListAPIView):
+    """
+    View to list all cities.
+    """
+
     queryset = City.objects.all()
     serializer_class = CitySerializer
     permission_classes = [AllowAny]
@@ -190,6 +198,10 @@ class CityListView(generics.ListAPIView):
 
 @country_detail_docs
 class CountryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    View to retrieve, update, or delete a country.
+    """
+
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     permission_classes = [IsAdminUser]
@@ -197,6 +209,10 @@ class CountryDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 @city_detail_docs
 class CityDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    View to retrieve, update, or delete a city.
+    """
+
     queryset = City.objects.all()
     serializer_class = CitySerializer
     permission_classes = [IsAdminUser]

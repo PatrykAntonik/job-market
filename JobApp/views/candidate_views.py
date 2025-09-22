@@ -15,11 +15,14 @@ from JobApp.models import (
 from JobApp.pagination import OptionalPagination
 from JobApp.permissions import IsEmployer
 from JobApp.serializers import (
+    CandidateEducationCreateSerializer,
     CandidateEducationSerializer,
+    CandidateExperienceCreateSerializer,
     CandidateExperienceSerializer,
     CandidateRegistrationSerializer,
     CandidateSerializer,
     CandidateSerializerWithTotalExp,
+    CandidateSkillCreateSerializer,
     CandidateSkillSerializer,
 )
 from docs.candidate_docs import (
@@ -154,29 +157,41 @@ class CandidateProfileView(generics.RetrieveUpdateAPIView):
 
 
 @candidate_skill_profile_docs
-class CandidateSkillProfileView(generics.ListAPIView):
+class CandidateSkillListProfileView(generics.ListCreateAPIView):
     """
     List all skills of the authenticated candidate.
     """
 
-    serializer_class = CandidateSkillSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = OptionalPagination
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CandidateSkillCreateSerializer
+        return CandidateSkillSerializer
 
     def get_queryset(self):
         candidate = get_object_or_404(Candidate, user=self.request.user)
         return CandidateSkill.objects.filter(candidate=candidate).order_by("id")
 
+    def perform_create(self, serializer):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        serializer.save(candidate=candidate)
+
 
 @candidate_education_profile_docs
-class CandidateEducationProfileView(generics.ListAPIView):
+class CandidateEducationListProfileView(generics.ListCreateAPIView):
     """
     List all education records of the authenticated candidate.
     """
 
-    serializer_class = CandidateEducationSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = OptionalPagination
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CandidateEducationCreateSerializer
+        return CandidateEducationSerializer
 
     def get_queryset(self):
         candidate = get_object_or_404(Candidate, user=self.request.user)
@@ -184,22 +199,34 @@ class CandidateEducationProfileView(generics.ListAPIView):
             "-is_current", "-date_to"
         )
 
+    def perform_create(self, serializer):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        serializer.save(candidate=candidate)
+
 
 @candidate_experience_profile_docs
-class CandidateExperienceProfileView(generics.ListAPIView):
+class CandidateExperienceListProfileView(generics.ListCreateAPIView):
     """
     List all experience records of the authenticated candidate.
     """
 
-    serializer_class = CandidateExperienceSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = OptionalPagination
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CandidateExperienceCreateSerializer
+        return CandidateExperienceSerializer
 
     def get_queryset(self):
         candidate = get_object_or_404(Candidate, user=self.request.user)
         return CandidateExperience.objects.filter(candidate=candidate).order_by(
             "-is_current", "-date_to"
         )
+
+    def perform_create(self, serializer):
+        candidate = get_object_or_404(Candidate, user=self.request.user)
+        serializer.save(candidate=candidate)
 
 
 @candidate_experience_detail_docs

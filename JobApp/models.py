@@ -152,11 +152,10 @@ class Employer(models.Model):
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=255, unique=True)
-    website_url = models.URLField(max_length=255, unique=True)
+    company_name = models.CharField(max_length=255)
+    website_url = models.URLField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
-    benefits = models.ManyToManyField("Benefit", blank=True)
 
     def __str__(self):
         return self.company_name + " - " + self.industry.name
@@ -174,6 +173,25 @@ class Benefit(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class EmployerBenefit(models.Model):
+    """
+    Represents the relationship between an employer and a benefit.
+    This model serves as a bridge table to associate specific benefits with
+    a given employer.
+
+    :ivar employer: The employer to which the benefit is associated.
+    :type employer: ForeignKey
+    :ivar benefit: The benefit associated with the employer.
+    :type benefit: ForeignKey
+    """
+
+    employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
+    benefit = models.ForeignKey(Benefit, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.employer.company_name} - {self.benefit.name}"
 
 
 class Skill(models.Model):

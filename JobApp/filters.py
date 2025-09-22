@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import widgets
 
-from .models import Candidate, City, Country, Skill, User
+from .models import Benefit, Candidate, City, Country, Employer, Industry, Skill, User
 
 
 class UserFilter(django_filters.FilterSet):
@@ -30,6 +30,44 @@ class UserFilter(django_filters.FilterSet):
     class Meta:
         model = User
         fields = ["city", "country"]
+
+
+class EmployerFilter(django_filters.FilterSet):
+    """
+    FilterSet for filtering employers based on city, country and industry.
+    """
+
+    city = django_filters.ModelMultipleChoiceFilter(
+        field_name="user__city__name",
+        to_field_name="name",
+        queryset=City.objects.all(),
+        widget=widgets.CSVWidget,
+    )
+    country = django_filters.ModelMultipleChoiceFilter(
+        field_name="user__city__country__name",
+        to_field_name="name",
+        queryset=Country.objects.all(),
+        label="Country",
+        widget=widgets.CSVWidget,
+    )
+    industry = django_filters.ModelMultipleChoiceFilter(
+        field_name="industry__name",
+        to_field_name="name",
+        queryset=Industry.objects.all(),
+        label="Industry",
+        widget=widgets.CSVWidget,
+    )
+    benefits = django_filters.ModelMultipleChoiceFilter(
+        field_name="benefits__name",
+        to_field_name="name",
+        queryset=Benefit.objects.all(),
+        label="Benefit",
+        widget=widgets.CSVWidget,
+    )
+
+    class Meta:
+        model = Employer
+        fields = ["city", "country", "industry", "benefits"]
 
 
 class CandidateFilter(django_filters.FilterSet):

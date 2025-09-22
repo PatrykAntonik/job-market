@@ -1,18 +1,34 @@
-# from django_filters.rest_framework import DjangoFilterBackend
-# from rest_framework import filters, generics
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-#
-# from JobApp.pagination import OptionalPagination
-# from JobApp.serializers import (
-#     ContractTypeSerializer,
-#     JobOfferSerializer,
-#     RemotenessLevelSerializer,
-#     SenioritySerializer,
-#     SkillSerializer,
-# )
-#
-#
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, views
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from JobApp.models import JobOffer
+from JobApp.pagination import OptionalPagination
+from JobApp.serializers import (
+    ContractTypeSerializer,
+    JobOfferSerializer,
+    RemotenessLevelSerializer,
+    SenioritySerializer,
+    SkillSerializer,
+)
+
+
+class JobOfferChoicesView(views.APIView):
+    """
+    Retrieve the available choices for job offer fields.
+    """
+
+    def get(self, request):
+        return Response(
+            {
+                "seniority": JobOffer.Seniority.choices,
+                "contract": JobOffer.ContractType.choices,
+                "remoteness": JobOffer.RemotenessLevel.choices,
+            }
+        )
+
+
 # @api_view(["GET"])
 # def getSkills(request):
 #     skills = Skill.objects.all()
@@ -98,10 +114,12 @@
 #     return Response(serializer.data)
 #
 # @api_view(["GET"])
-# def getIndustry(request, pk):
+# def getIndustry(.request, pk):
 #     try:
 #         industry = Industry.objects.get(id=pk)
 #         serializer = IndustrySerializer(industry, many=False)
 #         return Response(serializer.data)
 #     except Industry.DoesNotExist:
 #         return Response({"message": "Industry not found"}, status=404)
+
+# TODO- Add benefit list view

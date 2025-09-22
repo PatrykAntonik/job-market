@@ -21,11 +21,23 @@ services:
     environment:
       DB_HOST: db
       USE_LOCAL_DB: "true"
+      DJANGO_SUPERUSER_EMAIL: admin@example.com
+      DJANGO_SUPERUSER_PASSWORD: "123"
     command: >
       sh -lc '
         pip install --no-cache-dir faker &&
         python manage.py migrate &&
         python manage.py populate_db &&
+        python manage.py createsuperuser --noinput || true &&
+        echo "" &&
+        echo "====================================" &&
+        echo " ✅ Admin credentials:" &&
+        echo "    Email:    admin@example.com" &&
+        echo "    Password: 123" &&
+        echo "" &&
+        echo " ✅ Open in browser: http://localhost:8000" &&
+        echo "====================================" &&
+        echo "" &&
         python manage.py runserver 0.0.0.0:8000
       '
     depends_on:
