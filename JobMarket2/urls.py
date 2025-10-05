@@ -34,7 +34,7 @@ urlpatterns = [
     path("api/schema/redoc/", SpectacularRedocView.as_view(), name="redoc"),
     # path("api/employers/", include("JobApp.urls.employer_urls")),
     path("api/candidates/", include("JobApp.urls.candidate_urls")),
-    # path("api/jobs/", include("JobApp.urls.job_urls")),
+    path("api/jobs/", include("JobApp.urls.job_urls")),
     path("api/users/", include("JobApp.urls.user_urls")),
     path("api/employers/", include("JobApp.urls.employer_urls")),
     path("", SpectacularSwaggerView.as_view(), name="docs"),

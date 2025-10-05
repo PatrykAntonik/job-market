@@ -4,6 +4,7 @@ import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 from phone_field import PhoneField
 
 from .managers import CustomUserManager
@@ -338,8 +339,8 @@ class JobOffer(models.Model):
     :type wage: IntegerField
     :ivar currency: The currency of the wage.
     :type currency: CharField
-    :ivar skills: The skills required for the job.
-    :type skills: ManyToManyField
+    :ivar created_at: The date and time when the job offer was created.
+    :type created_at: DateTimeField
     """
 
     class Seniority(models.TextChoices):
@@ -349,7 +350,7 @@ class JobOffer(models.Model):
 
         INTERN = "INTERN", "Intern"
         JUNIOR = "JUNIOR", "Junior"
-        MID = "MID", "Mid"
+        Regular = "REGULAR", "Regular/Mid"
         SENIOR = "SENIOR", "Senior"
         LEAD = "LEAD", "Lead"
 
@@ -394,7 +395,7 @@ class JobOffer(models.Model):
     position = models.CharField(max_length=255)
     wage = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0)])
     currency = models.CharField(max_length=255, blank=True, null=True)
-    skills = models.ManyToManyField(Skill, through="JobOfferSkill")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.employer.company_name + " - " + self.position

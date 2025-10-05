@@ -23,9 +23,6 @@ from JobApp.models import (
 )
 
 
-# TODO- Clean tests, create fixtures for repeated code
-
-
 @pytest.mark.django_db
 def test_get_candidates_success():
     client = APIClient()

@@ -14,9 +14,6 @@ from JobApp.models import City, Country, User
 from JobApp.views.user_views import *
 
 
-# TODO- Clean tests, create fixtures for repeated code
-
-
 @pytest.mark.django_db
 def test_login_view_success():
     client = APIClient()

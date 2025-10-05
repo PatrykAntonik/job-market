@@ -66,6 +66,13 @@ token_obtain_pair_docs = extend_schema(
     tags=["Users"],
 )
 
+token_obtain_pair_docs = extend_schema(
+    summary="Obtain JWT token",
+    description="Obtain JWT token by providing user credentials.",
+    responses={200: UserSerializerToken},
+    tags=["Users"],
+)
+
 country_list_docs = extend_schema(
     summary="List all countries",
     description="Returns a list of all countries.",

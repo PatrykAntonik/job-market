@@ -299,6 +299,18 @@ class BenefitSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class EmployerBenefitSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the EmployerBenefit model.
+    """
+
+    benefit = BenefitSerializer(read_only=True)
+
+    class Meta:
+        model = EmployerBenefit
+        fields = ["id", "benefit"]
+
+
 class EmployerSerializer(serializers.ModelSerializer):
     """
     Serializer for the Employer model.
@@ -353,33 +365,84 @@ class CandidateSkillCreateSerializer(serializers.ModelSerializer):
         fields = ["skill"]
 
 
+class JobOfferSkillSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the JobOfferSkill model.
+    """
+
+    skill = SkillSerializer(read_only=True)
+
+    class Meta:
+        model = JobOfferSkill
+        fields = ["id", "skill"]
+
+
 class JobOfferSerializer(serializers.ModelSerializer):
     """
     Serializer for the JobOffer model.
     """
 
     employer = EmployerSerializer(read_only=True)
-    skills = SkillSerializer(many=True, read_only=True)
+    skills = JobOfferSkillSerializer(
+        many=True, read_only=True, source="jobofferskill_set"
+    )
 
     class Meta:
         model = JobOffer
-        # fields = ['id', 'employer', 'description', 'city', 'remoteness', 'seniority', 'position',
-        #          'wage', 'currency', 'skills', 'contract_type']
         fields = "__all__"
 
 
-class JobOfferSkillSerializer(serializers.ModelSerializer):
+class JobOfferCreateSerializer(serializers.ModelSerializer):
     """
-    Serializer for the JobOfferSkill model.
+    Serializer for creating JobOffer instances with skills.
     """
 
-    offer = JobOfferSerializer(read_only=True)
-    skill = SkillSerializer(read_only=True)
+    skills = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Skill.objects.all(), write_only=True
+    )
 
     class Meta:
-        model = JobOfferSkill
-        # fields = ['id', 'offer', 'skill']
-        fields = "__all__"
+        model = JobOffer
+        exclude = ["employer"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+        if request and hasattr(request, "user") and request.user.is_authenticated:
+            employer = Employer.objects.get(user=request.user)
+            self.fields["location"].queryset = EmployerLocation.objects.filter(
+                employer=employer
+            )
+
+    def create(self, validated_data):
+        skills_data = validated_data.pop("skills")
+        job_offer = JobOffer.objects.create(**validated_data)
+        for skill in skills_data:
+            JobOfferSkill.objects.create(offer=job_offer, skill=skill)
+        return job_offer
+
+
+class JobOfferUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating JobOffer instances with skills.
+    """
+
+    skills = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Skill.objects.all(), write_only=True, required=False
+    )
+
+    class Meta:
+        model = JobOffer
+        exclude = ["employer"]
+
+    def update(self, instance, validated_data):
+        if "skills" in validated_data:
+            skills_data = validated_data.pop("skills")
+            instance.jobofferskill_set.all().delete()
+            for skill in skills_data:
+                JobOfferSkill.objects.create(offer=instance, skill=skill)
+
+        return super().update(instance, validated_data)
 
 
 class CandidateExperienceSerializer(serializers.ModelSerializer):
@@ -463,18 +526,6 @@ class EmployerLocationCreateSerializer(serializers.ModelSerializer):
         fields = ["city"]
 
 
-class EmployerBenefitSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the EmployerBenefit model.
-    """
-
-    benefit = BenefitSerializer(read_only=True)
-
-    class Meta:
-        model = EmployerBenefit
-        fields = ["id", "benefit"]
-
-
 class EmployerBenefitCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for creating EmployerBenefit instances.
@@ -549,3 +600,12 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return CandidateSerializer(instance).data
+
+
+class ChoiceSerializer(serializers.Serializer):
+    """
+    Serializer for presenting choices from model enums.
+    """
+
+    value = serializers.CharField()
+    display = serializers.CharField()

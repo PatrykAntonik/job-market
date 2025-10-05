@@ -117,7 +117,7 @@ class TestEmployerLocationListView:
         EmployerLocation.objects.create(employer=employer, city=city)
         response = api_client.get(f"/api/employers/{employer.id}/locations/")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
+        assert len(response.data["results"]) == 1
 
 
 @pytest.mark.django_db
@@ -144,7 +144,7 @@ class TestEmployerLocationListProfileView:
         api_client.force_authenticate(user=user)
         response = api_client.get("/api/employers/profile/locations/")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
+        assert len(response.data["results"]) == 1
 
     def test_create_employer_location_profile_success(self, api_client, common_data):
         _, user, _, city, _ = common_data
@@ -163,7 +163,7 @@ class TestEmployerProfileBenefitListView:
         api_client.force_authenticate(user=user)
         response = api_client.get("/api/employers/profile/benefits/")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data) == 1
+        assert len(response.data["results"]) == 1
 
     def test_create_employer_benefit_profile_success(self, api_client, common_data):
         _, user, _, _, _ = common_data

@@ -9,7 +9,9 @@ services:
     ports:
       - "8001:5432"
   api:
-    build: .
+    build:
+        context: .
+        target: dev-runner
     volumes:
       - .:/app
     ports:
@@ -18,6 +20,11 @@ services:
     container_name: job-market
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     environment:
       DB_HOST: db
       USE_LOCAL_DB: "true"
@@ -25,7 +32,6 @@ services:
       DJANGO_SUPERUSER_PASSWORD: "123"
     command: >
       sh -lc '
-        pip install --no-cache-dir faker &&
         python manage.py migrate &&
         python manage.py populate_db &&
         python manage.py createsuperuser --noinput || true &&

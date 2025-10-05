@@ -43,7 +43,7 @@ urlpatterns = [
         "profile/skills/", CandidateSkillListProfileView.as_view(), name="skill-profile"
     ),
     path(
-        "profile/education/<int:pk>",
+        "profile/education/<int:pk>/",
         CandidateEducationDetailView.as_view(),
         name="education-detail",
     ),
@@ -53,7 +53,7 @@ urlpatterns = [
         name="education-profile",
     ),
     path(
-        "profile/experience/<int:pk>",
+        "profile/experience/<int:pk>/",
         CandidateExperienceDetailView.as_view(),
         name="experience-detail",
     ),

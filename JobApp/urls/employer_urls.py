@@ -5,6 +5,7 @@ This file contains the URL patterns for employer-related views in the JobApp app
 from django.urls import path
 
 from JobApp.views.employer_views import (
+    BenefitListView,
     EmployerBenefitDetailView,
     EmployerBenefitListProfileView,
     EmployerDetailView,
@@ -41,6 +42,7 @@ urlpatterns = [
         name="employer-profile-benefits",
     ),
     path("profile/", EmployerProfileView.as_view(), name="employer-profile"),
+    path("benefits/", BenefitListView.as_view(), name="benefits"),
     path(
         "<int:pk>/benefits/",
         EmployerListBenefitView.as_view(),
