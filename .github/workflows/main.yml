@@ -19,8 +19,22 @@ jobs:
     if: ${{ !github.event.inputs.skip_lint }}
     name: Test, lint and format
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jobmarket
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d jobmarket"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jobmarket?sslmode=disable
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,7 +59,7 @@ jobs:
       - name: Run tests
         id: tests
         continue-on-error: true
-        run: poetry run pytest -n auto --nomigrations --reuse-db --html=pytest-report.html --self-contained-html
+        run: poetry run pytest -n auto --html=pytest-report.html --self-contained-html
 
       - name: Upload pytest report
         uses: actions/upload-artifact@v4
