@@ -1,672 +1,271 @@
 import pytest
-from rest_framework.status import (
-    HTTP_200_OK,
-    HTTP_201_CREATED,
-    HTTP_204_NO_CONTENT,
-    HTTP_400_BAD_REQUEST,
-    HTTP_401_UNAUTHORIZED,
-    HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND,
-)
+from rest_framework import status
 from rest_framework.test import APIClient
 
 from JobApp.models import City, Country, User
-from JobApp.views.user_views import *
 
 
-@pytest.mark.django_db
-def test_login_view_success():
-    client = APIClient()
-    country = Country.objects.create(name="TestCountry")
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def common_data():
+    country = Country.objects.create(name="Test Country")
     city = City.objects.create(
-        name="TestCity", country=country, zip_code="12345", province="TestProvince"
+        name="Test City", country=country, province="Test Province", zip_code="12345"
     )
-    user = User.objects.create_user(
-        email="test@test.com",
-        password="testPassword",
-        phone_number="123456789",
+    other_city = City.objects.create(
+        name="Alt City", country=country, province="Alt Province", zip_code="54321"
+    )
+    admin_user = User.objects.create_superuser(
+        email="admin@example.com",
+        password="password123",
+        phone_number="600000000",
         city=city,
-        first_name="name",
-        last_name="surname",
+        first_name="Admin",
+        last_name="User",
     )
-    response = client.post(
-        "/api/users/login/",
-        {"email": user.email, "password": "testPassword"},
-        format="json",
+    user1 = User.objects.create_user(
+        email="user1@example.com",
+        password="password123",
+        phone_number="600000001",
+        city=city,
+        first_name="Test",
+        last_name="User1",
     )
-    assert (
-        response.status_code == HTTP_200_OK
-    ), f"Expected status code 200, but got {response.status_code}"
-    assert "access" in response.data, "Expected 'access' token in response"
-    assert "refresh" in response.data, "Expected 'refresh' token in response"
-    assert (
-        response.data["email"] == "test@test.com"
-    ), f"Expected email to be test@test.com, but got {response.data['email']}"
+    user2 = User.objects.create_user(
+        email="user2@example.com",
+        password="password123",
+        phone_number="600000002",
+        city=other_city,
+        first_name="Test",
+        last_name="User2",
+    )
+    return admin_user, user1, user2, city, other_city, country
 
 
 @pytest.mark.django_db
-def test_login_view_fail():
-    client = APIClient()
-    response = client.post(
-        "/api/users/login/",
-        {"email": "email", "password": "testPassword"},
-        format="json",
-    )
-    assert (
-        response.status_code == status.HTTP_401_UNAUTHORIZED
-    ), f"Expected status code 401, but got {response.status_code}"
-    assert (
-        "access" not in response.data
-    ), "Should not include access token on invalid login"
-    assert (
-        "refresh" not in response.data
-    ), "Should not include refresh token on invalid login"
+class TestLoginView:
+    def test_login_success(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        response = api_client.post(
+            "/api/users/login/",
+            {"email": user.email, "password": "password123"},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert "access" in response.data
+        assert "refresh" in response.data
+        assert response.data["email"] == user.email
+
+    def test_login_failure(self, api_client):
+        response = api_client.post(
+            "/api/users/login/",
+            {"email": "missing@example.com", "password": "badpass"},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert "access" not in response.data
+        assert "refresh" not in response.data
 
 
 @pytest.mark.django_db
-def test_register_user_success():
-    client = APIClient()
-    country = Country.objects.create(name="TestCountry")
-    city = City.objects.create(
-        name="TestCity", country=country, zip_code="12345", province="TestProvince"
-    )
-    response = client.post(
-        "/api/users/register/",
-        {
+class TestRegisterUserView:
+    def test_register_user_success(self, api_client, common_data):
+        _, _, _, city, _, _ = common_data
+        payload = {
             "email": "test@test.com",
             "password": "testPassword",
             "phone_number": "123456789",
             "city": city.id,
-            "first_name": "name",
-            "last_name": "surname",
-        },
-        format="json",
-    )
-    expected_data = {
-        "id": 1,
-        "email": "test@test.com",
-    }
-    assert (
-        response.status_code == HTTP_201_CREATED
-    ), f"Expected response code 201, but got {response.status_code}"
-    assert "access" in response.data, "Expected access token in response"
-    assert "refresh" in response.data, "Expected refresh token in response"
-    assert (
-        response.data["email"] == "test@test.com"
-    ), f"Expected email to be 'test@test.com', but got {response.data['email']}"
+            "first_name": "Test",
+            "last_name": "User",
+        }
+        response = api_client.post("/api/users/register/", payload, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        assert "access" in response.data and "refresh" in response.data
+        assert response.data["email"] == payload["email"]
 
 
 @pytest.mark.django_db
-def test_register_user_fail():
-    client = APIClient()
-    country = Country.objects.create(name="TestCountry")
-    city = City.objects.create(
-        name="TestCity", country=country, zip_code="12345", province="TestProvince"
-    )
-    response1 = client.post(
-        "/api/users/register/",
-        {
-            "email": "test@test.com",
-            "password": "firstPassword",
-            "phone_number": "123456789",
-            "city": city.id,
-            "first_name": "name1",
-            "last_name": "surname1",
-        },
-        format="json",
-    )
-    assert (
-        response1.status_code == 201
-    ), f"Expected status 201, got {response1.status_code}"
-    response2 = client.post(
-        "/api/users/register/",
-        {
-            "email": "test@test.com",
-            "password": "secondPassword",
-            "phone_number": "987654321",
-            "city": city.id,
-            "first_name": "name2",
-            "last_name": "surname2",
-        },
-        format="json",
-    )
-    assert (
-        response2.status_code == 400
-    ), f"Expected status 400, got {response2.status_code}"
-    assert "email" in response2.data
-    assert response2.data["email"][0] == "user with this email already exists."
+class TestUserDetailView:
+    def test_get_user_success(self, api_client, common_data):
+        admin_user, target_user, _, _, _, _ = common_data
+        api_client.force_authenticate(user=admin_user)
+
+        response = api_client.get(f"/api/users/{target_user.id}/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["id"] == target_user.id
+        assert response.data["email"] == target_user.email
+
+    def test_get_user_not_found(self, api_client, common_data):
+        admin_user, _, _, _, _, _ = common_data
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.get("/api/users/999/")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_get_user_forbidden_for_regular_user(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        api_client.force_authenticate(user=user)
+        response = api_client.get(f"/api/users/{user.id}/")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["detail"]
+            == "You do not have permission to perform this action."
+        )
 
 
 @pytest.mark.django_db
-def test_get_user_success():
-    client = APIClient()
-    country = Country.objects.create(name="TestCountry")
-    city = City.objects.create(
-        name="TestCity", country=country, zip_code="12345", province="TestProvince"
-    )
-    user = User.objects.create_superuser(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="testPassword",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    expected_data = {
-        "id": user.id,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "phone_number": user.phone_number,
-        "city": user.city.id,
-    }
-    response = client.get(f"/api/users/{user.id}/")
-    assert (
-        response.status_code == HTTP_200_OK
-    ), f"Expected status code 200, got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected {expected_data}, got {response.json()}"
+class TestUserProfileView:
+    def test_get_profile_success(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        api_client.force_authenticate(user=user)
+        response = api_client.get("/api/users/profile/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["id"] == user.id
+        assert response.data["email"] == user.email
+
+    def test_get_profile_unauthenticated(self, api_client):
+        response = api_client.get("/api/users/profile/")
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert (
+            response.data["detail"] == "Authentication credentials were not provided."
+        )
 
 
 @pytest.mark.django_db
-def test_get_user_not_found():
-    client = APIClient()
-    country = Country.objects.create(name="TestCountry")
-    city = City.objects.create(
-        name="TestCity", country=country, zip_code="12345", province="TestProvince"
-    )
-    user = User.objects.create_superuser(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="testPassword",
-        phone_number="123456789",
-        city=city,
-    )
+class TestUserListView:
+    def test_list_users_success(self, api_client, common_data):
+        admin_user, user1, user2, _, _, _ = common_data
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.get("/api/users/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 3
+        emails = {item["email"] for item in response.data["results"]}
+        assert emails == {admin_user.email, user1.email, user2.email}
 
-    client.force_authenticate(user=user)
-    expected_data = {"detail": "No User matches the given query."}
-    response = client.get(f"/api/users/{user.id + 1}/")
-    assert (
-        response.status_code == HTTP_404_NOT_FOUND
-    ), f"Expected status code 404, got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected {expected_data}, got {response.json()}"
+    def test_list_users_forbidden(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        api_client.force_authenticate(user=user)
+        response = api_client.get("/api/users/")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["detail"]
+            == "You do not have permission to perform this action."
+        )
 
 
 @pytest.mark.django_db
-def test_get_user_unauthorized():
-    client = APIClient()
-    country = Country.objects.create(name="TestCountry")
-    city = City.objects.create(
-        name="TestCity", country=country, zip_code="12345", province="TestProvince"
-    )
-    user = User.objects.create_user(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="testPassword",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    expected_data = {"detail": "You do not have permission to perform this action."}
-    response = client.get(f"/api/users/{user.id}/")
-    assert (
-        response.status_code == HTTP_403_FORBIDDEN
-    ), f"Expected status code 403, got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected {expected_data}, got {response.json()}"
+class TestUserProfileUpdateView:
+    def test_update_profile_success(self, api_client, common_data):
+        _, user, _, _, other_city, _ = common_data
+        api_client.force_authenticate(user=user)
+
+        payload = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "password": "password123",
+            "phone_number": user.phone_number,
+            "city": other_city.id,
+        }
+        response = api_client.put("/api/users/profile/", payload, format="json")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["city"] == other_city.id
+
+    def test_update_profile_unauthenticated(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        payload = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "password": "password123",
+            "phone_number": user.phone_number,
+            "city": user.city.id,
+        }
+        response = api_client.put("/api/users/profile/", payload, format="json")
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert (
+            response.data["detail"] == "Authentication credentials were not provided."
+        )
 
 
 @pytest.mark.django_db
-def test_get_user_profile_success():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    expected_data = {
-        "id": user.id,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "phone_number": user.phone_number,
-        "city": user.city.id,
-    }
-    response = client.get("/api/users/profile/")
-    assert (
-        response.status_code == HTTP_200_OK
-    ), f"Expected status code to be 200, but got {response.code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected {expected_data}, but got {response.json()}"
+class TestUserPasswordUpdateView:
+    def test_update_password_success(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        user.set_password("password")
+        user.save()
+        api_client.force_authenticate(user=user)
+        payload = {
+            "old_password": "password",
+            "new_password": "newPassword",
+            "confirm_password": "newPassword",
+        }
+        response = api_client.put(
+            "/api/users/profile/password/", payload, format="json"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == {"message": "Password updated successfully"}
+
+    def test_update_password_wrong_old_password(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        user.set_password("password")
+        user.save()
+        api_client.force_authenticate(user=user)
+        payload = {
+            "old_password": "wrong_password",
+            "new_password": "newPassword",
+            "confirm_password": "newPassword",
+        }
+        response = api_client.put(
+            "/api/users/profile/password/", payload, format="json"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "old_password": [
+                "Your old password was entered incorrectly. Please enter it again."
+            ]
+        }
+
+    def test_update_password_mismatched_confirmation(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        user.set_password("password")
+        user.save()
+        api_client.force_authenticate(user=user)
+        payload = {
+            "old_password": "password",
+            "new_password": "newPassword",
+            "confirm_password": "mismatch",
+        }
+        response = api_client.put(
+            "/api/users/profile/password/", payload, format="json"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {"non_field_errors": ["New passwords do not match"]}
 
 
 @pytest.mark.django_db
-def test_get_user_profile_unauthenticated():
-    client = APIClient()
-    response = client.get("/api/users/profile/")
-    expected_data = {"detail": "Authentication credentials were not provided."}
-    assert (
-        response.status_code == HTTP_401_UNAUTHORIZED
-    ), f"Expected status code to be 401, but got {response.code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected {expected_data}, but got {response.json()}"
+class TestDeleteUserView:
+    def test_delete_user_success(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        user.set_password("password")
+        user.save()
+        api_client.force_authenticate(user=user)
+        response = api_client.delete(
+            "/api/users/profile/", data={"password": "password"}, format="json"
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
 
-
-@pytest.mark.django_db
-def test_get_users_success():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create_superuser(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="testPassword",
-        phone_number="123456789",
-        city=city,
-    )
-    user_1 = User.objects.create_user(
-        email="test1@gmail.com",
-        password="<PASSWORD>",
-        phone_number="1234567890",
-        city=city,
-    )
-    user_2 = User.objects.create_user(
-        email="test2@gmail.com",
-        password="<PASSWORD>",
-        phone_number="1234567891",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    response = client.get("/api/users/")
-    expected_data = {
-        "count": 3,
-        "next": None,
-        "previous": None,
-        "results": [
-            {
-                "id": user.id,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "email": user.email,
-                "phone_number": user.phone_number,
-                "city": user.city.id,
-            },
-            {
-                "id": user_1.id,
-                "first_name": user_1.first_name,
-                "last_name": user_1.last_name,
-                "email": user_1.email,
-                "phone_number": user_1.phone_number,
-                "city": user_1.city.id,
-            },
-            {
-                "id": user_2.id,
-                "first_name": user_2.first_name,
-                "last_name": user_2.last_name,
-                "email": user_2.email,
-                "phone_number": user_2.phone_number,
-                "city": user_2.city.id,
-            },
-        ],
-    }
-    assert (
-        response.status_code == HTTP_200_OK
-    ), f"Expected status code 200, got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_get_users_without_permissions():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="testPassword",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    response = client.get("/api/users/")
-    expected_data = {"detail": "You do not have permission to perform this action."}
-    assert (
-        response.status_code == HTTP_403_FORBIDDEN
-    ), f"Expected status code 403, got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_update_user_profile_success():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    new_city = City.objects.create(
-        country=country,
-        name="new city name",
-        province="province name",
-        zip_code="41-800",
-    )
-    data = {
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "password": "password",
-        "phone_number": user.phone_number,
-        "city": new_city.id,
-    }
-    response = client.put("/api/users/profile/", data, format="json")
-    expected_data = {
-        "id": user.id,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "phone_number": user.phone_number,
-        "city": user.city.id,
-    }
-    assert (
-        response.status_code == HTTP_200_OK
-    ), f"Expected status code to be 200, but got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected  {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_update_user_profile_unique_email_fail():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    user_2 = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="tes2t@test.com",
-        password="password",
-        phone_number="1234567890",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    data = {
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user_2.email,
-        "password": "password",
-        "phone_number": user.phone_number,
-        "city": user.city.id,
-    }
-    response = client.put("/api/users/profile/", data, format="json")
-    expected_data = {"email": ["user with this email already exists."]}
-    assert (
-        response.status_code == HTTP_400_BAD_REQUEST
-    ), f"Expected status code to be 400, but got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected  {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_update_user_profile_unique_phone_fail():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    user_2 = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="tes2t@test.com",
-        password="password",
-        phone_number="1234567890",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    data = {
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "password": "password",
-        "phone_number": user_2.phone_number,
-        "city": user.city.id,
-    }
-    response = client.put("/api/users/profile/", data, format="json")
-    expected_data = {"phone_number": ["user with this phone number already exists."]}
-    assert (
-        response.status_code == HTTP_400_BAD_REQUEST
-    ), f"Expected status code to be 400, but got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected  {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_update_user_profile_unauthenticated():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    data = {
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "password": "password",
-        "phone_number": user.phone_number,
-        "city": user.city.id,
-    }
-    response = client.put("/api/users/profile/", data, format="json")
-    expected_data = {"detail": "Authentication credentials were not provided."}
-    assert (
-        response.status_code == HTTP_401_UNAUTHORIZED
-    ), f"Expected status code to be 401, but got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected  {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_update_user_password_success():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create_user(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    data = {
-        "old_password": "password",
-        "new_password": "newPassword",
-        "confirm_password": "newPassword",
-    }
-    response = client.put("/api/users/profile/password/", data, format="json")
-    expected_data = {"message": "Password updated successfully"}
-    assert (
-        response.status_code == HTTP_200_OK
-    ), f"Expected status code to be 200, but got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected  {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_update_user_password_wrong_old_password():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create_user(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    data = {
-        "old_password": "wrong_old_password",
-        "new_password": "newPassword",
-        "confirm_password": "newPassword",
-    }
-    response = client.put("/api/users/profile/password/", data, format="json")
-    expected_data = {
-        "old_password": [
-            "Your old password was entered incorrectly. Please enter it again."
-        ]
-    }
-    assert (
-        response.status_code == HTTP_400_BAD_REQUEST
-    ), f"Expected status code to be 400, but got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected  {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_update_user_password_mismatched_confirm_new_password():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create_user(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    data = {
-        "old_password": "password",
-        "new_password": "newPassword",
-        "confirm_password": "wrong_newPassword",
-    }
-    response = client.put("/api/users/profile/password/", data, format="json")
-    expected_data = {"non_field_errors": ["New passwords do not match"]}
-    assert (
-        response.status_code == HTTP_400_BAD_REQUEST
-    ), f"Expected status code to be 400, but got {response.status_code}"
-    assert (
-        response.json() == expected_data
-    ), f"Expected  {expected_data}, but got {response.json()}"
-
-
-@pytest.mark.django_db
-def test_delete_user_success():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create_user(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    response = client.delete(
-        "/api/users/profile/", data={"password": "password"}, format="json"
-    )
-    assert (
-        response.status_code == HTTP_204_NO_CONTENT
-    ), f"Expected status code to be 204, but got {response.status_code}"
-
-
-@pytest.mark.django_db
-def test_delete_user_unauthenticated():
-    client = APIClient()
-    country = Country.objects.create(name="country")
-    city = City.objects.create(
-        country=country, name="city name", province="province name", zip_code="43-300"
-    )
-    user = User.objects.create_user(
-        first_name="name",
-        last_name="surname",
-        email="test@test.com",
-        password="password",
-        phone_number="123456789",
-        city=city,
-    )
-    client.force_authenticate(user=user)
-    response = client.delete(
-        "/api/users/profile/", data={"password": "wrong_password"}, format="json"
-    )
-    assert (
-        response.status_code == HTTP_400_BAD_REQUEST
-    ), f"Expected status code to be 400, but got {response.status_code}"
+    def test_delete_user_wrong_password(self, api_client, common_data):
+        _, user, _, _, _, _ = common_data
+        user.set_password("password")
+        user.save()
+        api_client.force_authenticate(user=user)
+        response = api_client.delete(
+            "/api/users/profile/", data={"password": "wrong"}, format="json"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

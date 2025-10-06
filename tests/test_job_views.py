@@ -1,408 +1,204 @@
-# import pytest
-# from rest_framework.status import (
-#     HTTP_200_OK,
-#     HTTP_401_UNAUTHORIZED,
-#     HTTP_403_FORBIDDEN,
-#     HTTP_404_NOT_FOUND,
-# )
-# from rest_framework.test import APIClient
-#
-# from JobApp.models import (
-#     City,
-#     Country,
-#     Employer,
-#     EmployerLocation,
-#     Industry,
-#     JobOffer,
-#     Skill,
-#     User,
-# )
-# from JobApp.views.employer_views import *
-#
-#
-# @pytest.mark.django_db
-# def test_get_skills():
-#     client = APIClient()
-#     skill1 = Skill.objects.create(name="Python")
-#     skill2 = Skill.objects.create(name="")
-#     response = client.get("/api/jobs/skills/")
-#     expected_data = [
-#         {"id": skill1.id, "name": skill1.name},
-#         {"id": skill2.id, "name": skill2.name},
-#     ]
-#     assert (
-#         response.status_code == HTTP_200_OK
-#     ), f"Expected status 200, but got {response.status_code}"
-#     assert (
-#         response.data == expected_data
-#     ), f"Expected {expected_data}, but got {response.data}"
-#
-#
-# @pytest.mark.django_db
-# def test_get_job_offers():
-#     client = APIClient()
-#     industry = Industry.objects.create(name="IT")
-#     country = Country.objects.create(name="Poland")
-#     city = City.objects.create(name="Warsaw", country=country)
-#     remoteness = JobOffer.RemotenessLevel.ONSITE
-#     contract = JobOffer.ContractType.B2B_CONTRACT
-#     seniority = JobOffer.Seniority.JUNIOR
-#     user1 = User.objects.create_user(
-#         email="test@gmail.com",
-#         password="<PASSWORD>",
-#         phone_number="1234567890",
-#         city=city,
-#     )
-#     user2 = User.objects.create_user(
-#         email="test2@gmail.com",
-#         password="<PASSWORD>",
-#         phone_number="123456789",
-#         city=city,
-#     )
-#     employer1 = Employer.objects.create(
-#         user=user1,
-#         company_name="company1",
-#         industry=industry,
-#         website_url="https://www.company1.com",
-#         description="description1",
-#     )
-#     employer2 = Employer.objects.create(
-#         user=user2,
-#         company_name="company2",
-#         industry=industry,
-#         website_url="https://www.company2.com",
-#         description="description1",
-#     )
-#     employer1_location = EmployerLocation.objects.create(employer=employer1, city=city)
-#     employer2_location = EmployerLocation.objects.create(employer=employer2, city=city)
-#     job_offer_1 = JobOffer.objects.create(
-#         employer=employer1,
-#         description="description1",
-#         location=employer1_location,
-#         remoteness=remoteness,
-#         contract=contract,
-#         seniority=seniority,
-#         position="position1",
-#         wage=1000,
-#         currency="USD",
-#     )
-#     job_offer_2 = JobOffer.objects.create(
-#         employer=employer2,
-#         description="description1",
-#         location=employer2_location,
-#         remoteness=remoteness,
-#         contract=contract,
-#         seniority=seniority,
-#         position="position1",
-#         wage=1000,
-#         currency="USD",
-#     )
-#     response = client.get("/api/jobs/")
-#     expected_data = [
-#         {
-#             "id": job_offer_1.id,
-#             "employer": {
-#                 "id": employer1.id,
-#                 "user": {
-#                     "id": user1.id,
-#                     "first_name": user1.first_name,
-#                     "last_name": user1.last_name,
-#                     "email": user1.email,
-#                     "city": user1.city.id,
-#                     "phone_number": user1.phone_number,
-#                 },
-#                 "company_name": employer1.company_name,
-#                 "website_url": employer1.website_url,
-#                 "industry": {
-#                     "id": industry.id,
-#                     "name": industry.name,
-#                 },
-#                 "description": employer1.description,
-#                 "benefits": [],
-#             },
-#             "remoteness": remoteness,
-#             "seniority": seniority,
-#             "skills": [],
-#             "description": job_offer_1.description,
-#             "position": job_offer_1.position,
-#             "wage": job_offer_1.wage,
-#             "currency": job_offer_1.currency,
-#             "location": employer1_location.id,
-#             "contract": contract,
-#         },
-#         {
-#             "id": job_offer_2.id,
-#             "employer": {
-#                 "id": employer2.id,
-#                 "user": {
-#                     "id": user2.id,
-#                     "first_name": user2.first_name,
-#                     "last_name": user2.last_name,
-#                     "email": user2.email,
-#                     "city": user2.city.id,
-#                     "phone_number": user2.phone_number,
-#                 },
-#                 "company_name": employer2.company_name,
-#                 "website_url": employer2.website_url,
-#                 "industry": {
-#                     "id": industry.id,
-#                     "name": industry.name,
-#                 },
-#                 "description": employer2.description,
-#                 "benefits": [],
-#             },
-#             "remoteness": remoteness,
-#             "seniority": seniority,
-#             "skills": [],
-#             "description": job_offer_2.description,
-#             "position": job_offer_2.position,
-#             "wage": job_offer_2.wage,
-#             "currency": job_offer_2.currency,
-#             "location": employer2_location.id,
-#             "contract": contract,
-#         },
-#     ]
-#     assert (
-#         response.status_code == HTTP_200_OK
-#     ), f"Expected status 200, but got {response.status_code}"
-#     assert (
-#         response.data == expected_data
-#     ), f"Expected {expected_data}, but got {response.data}"
-#
-#
-# @pytest.mark.django_db
-# def test_get_job_offer_success():
-#     client = APIClient()
-#     industry = Industry.objects.create(name="IT")
-#     country = Country.objects.create(name="Poland")
-#     city = City.objects.create(name="Warsaw", country=country)
-#     remoteness = JobOffer.RemotenessLevel.ONSITE
-#     contract = JobOffer.ContractType.B2B_CONTRACT
-#     seniority = JobOffer.Seniority.JUNIOR
-#     user1 = User.objects.create_user(
-#         email="test@gmail.com",
-#         password="<PASSWORD>",
-#         phone_number="1234567890",
-#         city=city,
-#     )
-#     employer1 = Employer.objects.create(
-#         user=user1,
-#         company_name="company1",
-#         industry=industry,
-#         website_url="https://www.company1.com",
-#         description="description1",
-#     )
-#     employer1_location = EmployerLocation.objects.create(employer=employer1, city=city)
-#     job_offer_1 = JobOffer.objects.create(
-#         employer=employer1,
-#         description="description1",
-#         location=employer1_location,
-#         remoteness=remoteness,
-#         contract=contract,
-#         seniority=seniority,
-#         position="position1",
-#         wage=1000,
-#         currency="USD",
-#     )
-#     skill1 = Skill.objects.create(name="Python")
-#     skill2 = Skill.objects.create(name="Java")
-#     job_offer_1.skills.add(skill1)
-#     job_offer_1.skills.add(skill2)
-#     response = client.get(f"/api/jobs/{job_offer_1.id}/")
-#     expected_data = {
-#         "id": job_offer_1.id,
-#         "employer": {
-#             "id": employer1.id,
-#             "user": {
-#                 "id": user1.id,
-#                 "first_name": user1.first_name,
-#                 "last_name": user1.last_name,
-#                 "email": user1.email,
-#                 "city": user1.city.id,
-#                 "phone_number": user1.phone_number,
-#             },
-#             "company_name": employer1.company_name,
-#             "website_url": employer1.website_url,
-#             "industry": {
-#                 "id": industry.id,
-#                 "name": industry.name,
-#             },
-#             "description": employer1.description,
-#             "benefits": [],
-#         },
-#         "remoteness": remoteness,
-#         "seniority": seniority,
-#         "skills": [
-#             {"id": skill1.id, "name": skill1.name},
-#             {"id": skill2.id, "name": skill2.name},
-#         ],
-#         "description": job_offer_1.description,
-#         "position": job_offer_1.position,
-#         "wage": job_offer_1.wage,
-#         "currency": job_offer_1.currency,
-#         "location": employer1_location.id,
-#         "contract": contract,
-#     }
-#     assert (
-#         response.status_code == HTTP_200_OK
-#     ), f"Expected status 200, but got {response.status_code}"
-#     assert (
-#         response.data == expected_data
-#     ), f"Expected {expected_data}, but got {response.data}"
-#
-#
-# @pytest.mark.django_db
-# def test_get_job_offer_not_found():
-#     client = APIClient()
-#     response = client.get("/api/jobs/1/")
-#     expected_data = {"message": "Job offer not found"}
-#     assert (
-#         response.status_code == HTTP_404_NOT_FOUND
-#     ), f"Expected status 404, but got {response.status_code}"
-#     assert (
-#         response.data == expected_data
-#     ), f"Expected {expected_data}, but got {response.data}"
-#
-#
-# @pytest.mark.django_db
-# def test_get_employer_job_offers_success():
-#     client = APIClient()
-#     industry = Industry.objects.create(name="IT")
-#     country = Country.objects.create(name="Poland")
-#     city = City.objects.create(name="Warsaw", country=country)
-#     remoteness = JobOffer.RemotenessLevel.ONSITE
-#     contract = JobOffer.ContractType.B2B_CONTRACT
-#     seniority = JobOffer.Seniority.JUNIOR
-#     user1 = User.objects.create_user(
-#         email="test@gmail.com",
-#         password="<PASSWORD>",
-#         phone_number="1234567890",
-#         city=city,
-#     )
-#     employer1 = Employer.objects.create(
-#         user=user1,
-#         company_name="company1",
-#         industry=industry,
-#         website_url="https://www.company1.com",
-#         description="description1",
-#     )
-#     employer1_location = EmployerLocation.objects.create(employer=employer1, city=city)
-#     job_offer_1 = JobOffer.objects.create(
-#         employer=employer1,
-#         description="description1",
-#         location=employer1_location,
-#         remoteness=remoteness,
-#         contract=contract,
-#         seniority=seniority,
-#         position="position1",
-#         wage=1000,
-#         currency="USD",
-#     )
-#     job_offer_2 = JobOffer.objects.create(
-#         employer=employer1,
-#         description="description2",
-#         location=employer1_location,
-#         remoteness=remoteness,
-#         contract=contract,
-#         seniority=seniority,
-#         position="position2",
-#         wage=1000,
-#         currency="USD",
-#     )
-#     response = client.get(f"/api/jobs/employer/{employer1.id}/")
-#     expected_data = [
-#         {
-#             "id": job_offer_1.id,
-#             "employer": {
-#                 "id": employer1.id,
-#                 "user": {
-#                     "id": user1.id,
-#                     "first_name": user1.first_name,
-#                     "last_name": user1.last_name,
-#                     "email": user1.email,
-#                     "city": user1.city.id,
-#                     "phone_number": user1.phone_number,
-#                 },
-#                 "company_name": employer1.company_name,
-#                 "website_url": employer1.website_url,
-#                 "industry": {
-#                     "id": industry.id,
-#                     "name": industry.name,
-#                 },
-#                 "description": employer1.description,
-#                 "benefits": [],
-#             },
-#             "remoteness": remoteness,
-#             "seniority": seniority,
-#             "skills": [],
-#             "description": job_offer_1.description,
-#             "position": job_offer_1.position,
-#             "wage": job_offer_1.wage,
-#             "currency": job_offer_1.currency,
-#             "location": employer1_location.id,
-#             "contract": contract,
-#         },
-#         {
-#             "id": job_offer_2.id,
-#             "employer": {
-#                 "id": employer1.id,
-#                 "user": {
-#                     "id": user1.id,
-#                     "first_name": user1.first_name,
-#                     "last_name": user1.last_name,
-#                     "email": user1.email,
-#                     "city": user1.city.id,
-#                     "phone_number": user1.phone_number,
-#                 },
-#                 "company_name": employer1.company_name,
-#                 "website_url": employer1.website_url,
-#                 "industry": {
-#                     "id": industry.id,
-#                     "name": industry.name,
-#                 },
-#                 "description": employer1.description,
-#                 "benefits": [],
-#             },
-#             "remoteness": remoteness,
-#             "seniority": seniority,
-#             "skills": [],
-#             "description": job_offer_2.description,
-#             "position": job_offer_2.position,
-#             "wage": job_offer_2.wage,
-#             "currency": job_offer_2.currency,
-#             "location": employer1_location.id,
-#             "contract": contract,
-#         },
-#     ]
-#     assert (
-#         response.status_code == HTTP_200_OK
-#     ), f"Expected status 200, but got {response.status_code}"
-#     assert (
-#         response.data == expected_data
-#     ), f"Expected {expected_data}, but got {response.data}"
-#
-#
-# @pytest.mark.django_db
-# def test_get_employer_job_offers_not_found():
-#     client = APIClient()
-#     response = client.get("/api/jobs/employer/1/")
-#     expected_data = {"message": "Employer not found"}
-#     assert (
-#         response.status_code == HTTP_404_NOT_FOUND
-#     ), f"Expected status 404, but got {response.status_code}"
-#     assert (
-#         response.data == expected_data
-#     ), f"Expected {expected_data}, but got {response.data}"
-#
-#
-# @pytest.mark.django_db
-# def test_get_employer_job_offers_non_existent_employer():
-#     client = APIClient()
-#     response = client.get("/api/jobs/employer/1/")
-#     expected_data = {"message": "Employer not found"}
-#     assert (
-#         response.status_code == HTTP_404_NOT_FOUND
-#     ), f"Expected status 404, but got {response.status_code}"
-#     assert (
-#         response.data == expected_data
-#     ), f"Expected {expected_data}, but got {response.data}"
+import pytest
+from rest_framework import status
+from rest_framework.test import APIClient
+
+from JobApp.models import (
+    City,
+    Country,
+    Employer,
+    EmployerLocation,
+    Industry,
+    JobOffer,
+    JobOfferSkill,
+    Skill,
+    User,
+)
+
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def common_data():
+    country = Country.objects.create(name="Test Country")
+    city = City.objects.create(
+        name="Test City", country=country, province="Test Province", zip_code="12345"
+    )
+    industry = Industry.objects.create(name="Technology")
+    user = User.objects.create_user(
+        email="employer@example.com",
+        password="password123",
+        city=city,
+    )
+    employer = Employer.objects.create(
+        user=user,
+        company_name="Employer Inc",
+        industry=industry,
+    )
+    location = EmployerLocation.objects.create(employer=employer, city=city)
+    skill = Skill.objects.create(name="Python")
+    job_offer = JobOffer.objects.create(
+        employer=employer,
+        location=location,
+        position="Test Job Offer",
+        remoteness=JobOffer.RemotenessLevel.ONSITE,
+        contract=JobOffer.ContractType.B2B_CONTRACT,
+        seniority=JobOffer.Seniority.JUNIOR,
+    )
+    JobOfferSkill.objects.create(offer=job_offer, skill=skill)
+    return employer, user, industry, city, country, location, job_offer, skill
+
+
+@pytest.mark.django_db
+class TestSkillListView:
+    def test_get_skills_success(self, api_client, common_data):
+        _, _, _, _, _, _, _, skill = common_data
+        response = api_client.get("/api/jobs/skills/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["name"] == skill.name
+
+
+@pytest.mark.django_db
+class TestIndustryListView:
+    def test_get_industries_success(self, api_client, common_data):
+        _, _, industry, _, _, _, _, _ = common_data
+        response = api_client.get("/api/jobs/industries/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["name"] == industry.name
+
+
+@pytest.mark.django_db
+class TestSeniorityListView:
+    def test_get_seniority_levels_success(self, api_client):
+        response = api_client.get("/api/jobs/seniority/")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data["results"]) > 0
+
+
+@pytest.mark.django_db
+class TestContractTypeListView:
+    def test_get_contract_types_success(self, api_client):
+        response = api_client.get("/api/jobs/contract-types/")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data["results"]) > 0
+
+
+@pytest.mark.django_db
+class TestRemotenessLevelListView:
+    def test_get_remoteness_levels_success(self, api_client):
+        response = api_client.get("/api/jobs/remoteness-levels/")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data["results"]) > 0
+
+
+@pytest.mark.django_db
+class TestJobOfferListView:
+    def test_get_job_offers_success(self, api_client, common_data):
+        _, _, _, _, _, _, job_offer, _ = common_data
+        response = api_client.get("/api/jobs/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["position"] == job_offer.position
+
+
+@pytest.mark.django_db
+class TestJobOfferDetailView:
+    def test_get_job_offer_success(self, api_client, common_data):
+        _, _, _, _, _, _, job_offer, _ = common_data
+        response = api_client.get(f"/api/jobs/{job_offer.id}/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["position"] == job_offer.position
+
+    def test_get_job_offer_not_found(self, api_client):
+        response = api_client.get("/api/jobs/999/")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+class TestEmployerJobOfferListView:
+    def test_get_employer_job_offers_success(self, api_client, common_data):
+        employer, _, _, _, _, _, job_offer, _ = common_data
+        response = api_client.get(f"/api/jobs/employer/{employer.id}/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["position"] == job_offer.position
+
+    def test_get_employer_job_offers_not_found(self, api_client):
+        response = api_client.get("/api/jobs/employer/999/")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+class TestJobOfferProfileListView:
+    def test_get_job_offers_profile_success(self, api_client, common_data):
+        _, user, _, _, _, _, _, _ = common_data
+        api_client.force_authenticate(user=user)
+        response = api_client.get("/api/jobs/profile/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 1
+
+    def test_get_job_offers_profile_unauthorized(self, api_client):
+        response = api_client.get("/api/jobs/profile/")
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_create_job_offer_profile_success(self, api_client, common_data):
+        _, user, _, _, _, location, _, skill = common_data
+        api_client.force_authenticate(user=user)
+        data = {
+            "position": "New Job Offer",
+            "location": location.id,
+            "remoteness": JobOffer.RemotenessLevel.REMOTE,
+            "contract": JobOffer.ContractType.EMPLOYMENT_CONTRACT,
+            "seniority": JobOffer.Seniority.SENIOR,
+            "description": "New role description",
+            "wage": 10000,
+            "currency": "USD",
+            "skills": [skill.id],
+        }
+        response = api_client.post("/api/jobs/profile/", data, format="json")
+        assert response.status_code == status.HTTP_201_CREATED
+        new_offer = JobOffer.objects.get(id=response.data["id"])
+        assert new_offer.employer == common_data[0]
+        skill_names = {entry.skill.name for entry in new_offer.jobofferskill_set.all()}
+        assert skill_names == {skill.name}
+
+
+@pytest.mark.django_db
+class TestJobOfferProfileDetailView:
+    def test_get_job_offer_profile_success(self, api_client, common_data):
+        _, user, _, _, _, _, job_offer, _ = common_data
+        api_client.force_authenticate(user=user)
+        response = api_client.get(f"/api/jobs/profile/{job_offer.id}/")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["position"] == job_offer.position
+
+    def test_get_job_offer_profile_unauthorized(self, api_client, common_data):
+        _, _, _, _, _, _, job_offer, _ = common_data
+        response = api_client.get(f"/api/jobs/profile/{job_offer.id}/")
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_update_job_offer_profile_success(self, api_client, common_data):
+        _, user, _, _, _, _, job_offer, _ = common_data
+        api_client.force_authenticate(user=user)
+        data = {"position": "Updated Job Offer"}
+        response = api_client.patch(
+            f"/api/jobs/profile/{job_offer.id}/", data, format="json"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        job_offer.refresh_from_db()
+        assert job_offer.position == "Updated Job Offer"
+
+    def test_delete_job_offer_profile_success(self, api_client, common_data):
+        _, user, _, _, _, _, job_offer, _ = common_data
+        api_client.force_authenticate(user=user)
+        response = api_client.delete(f"/api/jobs/profile/{job_offer.id}/")
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not JobOffer.objects.filter(id=job_offer.id).exists()

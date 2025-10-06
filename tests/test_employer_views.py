@@ -14,9 +14,6 @@ from JobApp.models import (
 )
 
 
-# TODO- Fix tests
-
-
 @pytest.fixture
 def api_client():
     return APIClient()
