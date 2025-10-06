@@ -59,8 +59,6 @@ jobs:
       - name: Run tests
         id: tests
         continue-on-error: true
-        env:
-          DJANGO_SETTINGS_MODULE: JobMarket2.settings
         run: poetry run pytest -n auto --html=pytest-report.html --self-contained-html
 
       - name: Upload pytest report
