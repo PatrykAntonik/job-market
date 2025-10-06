@@ -4,6 +4,7 @@ This script populates the database with fake data for testing purposes.
 
 import random
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management.base import BaseCommand
 from faker import Faker
 
@@ -16,6 +17,7 @@ from JobApp.models import (
     City,
     Country,
     Employer,
+    EmployerBenefit,
     EmployerLocation,
     Industry,
     JobOffer,
@@ -79,7 +81,9 @@ class Command(BaseCommand):
             )
             candidate = Candidate.objects.create(
                 user=user,
-                resume=f"resumes/{fake.file_name(extension='pdf')}",
+                resume=SimpleUploadedFile(
+                    "resume.pdf", b"pdf content", content_type="application/pdf"
+                ),
                 about=fake.paragraph(),
             )
             candidates.append(candidate)
@@ -112,9 +116,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Created {len(benefits)} benefits."))
 
         for employer in employers:
-            employer.benefits.set(
-                random.sample(benefits, k=random.randint(1, len(benefits)))
+            selected_benefits = random.sample(
+                benefits, k=random.randint(1, len(benefits))
             )
+            for benefit in selected_benefits:
+                EmployerBenefit.objects.create(employer=employer, benefit=benefit)
         self.stdout.write(self.style.SUCCESS("Assigned benefits to employers."))
 
         skills = []
@@ -251,6 +257,7 @@ class Command(BaseCommand):
         JobOfferSkill.objects.all().delete()
         JobOffer.objects.all().delete()
         EmployerLocation.objects.all().delete()
+        EmployerBenefit.objects.all().delete()
         CandidateEducation.objects.all().delete()
         CandidateExperience.objects.all().delete()
         CandidateSkill.objects.all().delete()

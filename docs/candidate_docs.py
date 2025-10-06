@@ -5,10 +5,13 @@ Documentation for Candidate API Endpoints
 from drf_spectacular.utils import extend_schema
 
 from JobApp.serializers import (
+    CandidateEducationCreateSerializer,
     CandidateEducationSerializer,
+    CandidateExperienceCreateSerializer,
     CandidateExperienceSerializer,
     CandidateRegistrationSerializer,
     CandidateSerializer,
+    CandidateSkillCreateSerializer,
     CandidateSkillSerializer,
 )
 
@@ -73,6 +76,7 @@ candidate_profile_docs = extend_schema(
 candidate_skill_profile_docs = extend_schema(
     summary="List authenticated candidate's skills",
     description="Returns a list of skills for the authenticated candidate.",
+    request=CandidateSkillCreateSerializer,
     responses={200: CandidateSkillSerializer(many=True)},
     tags=["Candidates"],
 )
@@ -80,6 +84,7 @@ candidate_skill_profile_docs = extend_schema(
 candidate_education_profile_docs = extend_schema(
     summary="List authenticated candidate's educations",
     description="Returns a list of educations for the authenticated candidate.",
+    request=CandidateEducationCreateSerializer,
     responses={200: CandidateEducationSerializer(many=True)},
     tags=["Candidates"],
 )
@@ -87,6 +92,7 @@ candidate_education_profile_docs = extend_schema(
 candidate_experience_profile_docs = extend_schema(
     summary="List authenticated candidate's experiences",
     description="Returns a list of experiences for the authenticated candidate.",
+    request=CandidateExperienceCreateSerializer,
     responses={200: CandidateExperienceSerializer(many=True)},
     tags=["Candidates"],
 )

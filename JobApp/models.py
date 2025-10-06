@@ -4,6 +4,7 @@ import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 from phone_field import PhoneField
 
 from .managers import CustomUserManager
@@ -152,11 +153,10 @@ class Employer(models.Model):
     """
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=255, unique=True)
-    website_url = models.URLField(max_length=255, unique=True)
+    company_name = models.CharField(max_length=255)
+    website_url = models.URLField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
-    benefits = models.ManyToManyField("Benefit", blank=True)
 
     def __str__(self):
         return self.company_name + " - " + self.industry.name
@@ -174,6 +174,25 @@ class Benefit(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class EmployerBenefit(models.Model):
+    """
+    Represents the relationship between an employer and a benefit.
+    This model serves as a bridge table to associate specific benefits with
+    a given employer.
+
+    :ivar employer: The employer to which the benefit is associated.
+    :type employer: ForeignKey
+    :ivar benefit: The benefit associated with the employer.
+    :type benefit: ForeignKey
+    """
+
+    employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
+    benefit = models.ForeignKey(Benefit, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.employer.company_name} - {self.benefit.name}"
 
 
 class Skill(models.Model):
@@ -320,8 +339,8 @@ class JobOffer(models.Model):
     :type wage: IntegerField
     :ivar currency: The currency of the wage.
     :type currency: CharField
-    :ivar skills: The skills required for the job.
-    :type skills: ManyToManyField
+    :ivar created_at: The date and time when the job offer was created.
+    :type created_at: DateTimeField
     """
 
     class Seniority(models.TextChoices):
@@ -331,7 +350,7 @@ class JobOffer(models.Model):
 
         INTERN = "INTERN", "Intern"
         JUNIOR = "JUNIOR", "Junior"
-        MID = "MID", "Mid"
+        Regular = "REGULAR", "Regular/Mid"
         SENIOR = "SENIOR", "Senior"
         LEAD = "LEAD", "Lead"
 
@@ -376,7 +395,7 @@ class JobOffer(models.Model):
     position = models.CharField(max_length=255)
     wage = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(0)])
     currency = models.CharField(max_length=255, blank=True, null=True)
-    skills = models.ManyToManyField(Skill, through="JobOfferSkill")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.employer.company_name + " - " + self.position

@@ -5,6 +5,8 @@ Documentation for User API Endpoints
 from drf_spectacular.utils import extend_schema
 
 from JobApp.serializers import (
+    CitySerializer,
+    CountrySerializer,
     UpdateUserPasswordSerializer,
     UserRegistrationSerializer,
     UserSerializer,
@@ -62,4 +64,39 @@ token_obtain_pair_docs = extend_schema(
     description="Obtain JWT token by providing user credentials.",
     responses={200: UserSerializerToken},
     tags=["Users"],
+)
+
+token_obtain_pair_docs = extend_schema(
+    summary="Obtain JWT token",
+    description="Obtain JWT token by providing user credentials.",
+    responses={200: UserSerializerToken},
+    tags=["Users"],
+)
+
+country_list_docs = extend_schema(
+    summary="List all countries",
+    description="Returns a list of all countries.",
+    responses={200: CountrySerializer(many=True)},
+    tags=["Locations"],
+)
+
+country_detail_docs = extend_schema(
+    summary="Get, update or delete a country",
+    description="Allows admin users to retrieve, update or delete a country.",
+    responses={200: CountrySerializer},
+    tags=["Locations"],
+)
+
+city_list_docs = extend_schema(
+    summary="List all cities",
+    description="Returns a list of all cities.",
+    responses={200: CitySerializer(many=True)},
+    tags=["Locations"],
+)
+
+city_detail_docs = extend_schema(
+    summary="Get, update or delete a city",
+    description="Allows admin users to retrieve, update or delete a city.",
+    responses={200: CitySerializer},
+    tags=["Locations"],
 )

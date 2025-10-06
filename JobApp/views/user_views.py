@@ -7,9 +7,11 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from JobApp.filters import UserFilter
-from JobApp.models import User
+from JobApp.models import City, Country, User
 from JobApp.pagination import OptionalPagination
 from JobApp.serializers import (
+    CitySerializer,
+    CountrySerializer,
     UpdateUserPasswordSerializer,
     UserProfileSerializer,
     UserRegistrationSerializer,
@@ -17,7 +19,12 @@ from JobApp.serializers import (
     UserSerializerToken,
 )
 from docs.user_docs import (
+    city_detail_docs,
+    city_list_docs,
+    country_detail_docs,
+    country_list_docs,
     register_user_docs,
+    token_obtain_pair_docs,
     update_user_password_docs,
     user_detail_docs,
     user_list_docs,
@@ -39,7 +46,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 
-@extend_schema(tags=["Users"])
+@token_obtain_pair_docs
 class MyTokenObtainPairView(TokenObtainPairView):
     """
     Custom token obtain pair view to include user data in the response.
@@ -51,7 +58,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 @register_user_docs
 class UserRegistrationView(generics.CreateAPIView):
     """
-    View for user registration.
+    Register a new user.
     """
 
     serializer_class = UserRegistrationSerializer
@@ -76,9 +83,7 @@ class UserRegistrationView(generics.CreateAPIView):
 @user_list_docs
 class UserListView(generics.ListAPIView):
     """
-    View to list all users.
-
-    Only accessible by admin users.
+    Retrieve a list of users with optional filtering, searching, and ordering.
     """
 
     queryset = User.objects.all()
@@ -105,9 +110,7 @@ class UserListView(generics.ListAPIView):
 @user_profile_docs
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     """
-    View for retrieving, updating and deleting a user's profile.
-
-    The user can only access their own profile.
+    Retrieve, update, or delete the authenticated user's profile.
     """
 
     permission_classes = [IsAuthenticated]
@@ -130,9 +133,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
 @user_detail_docs
 class UserDetailView(generics.RetrieveAPIView):
     """
-    View to retrieve a user's details.
-
-    Only accessible by admin users.
+    Retrieve a user's details.
     """
 
     queryset = User.objects.all()
@@ -143,9 +144,7 @@ class UserDetailView(generics.RetrieveAPIView):
 @update_user_password_docs
 class UpdateUserPasswordView(generics.UpdateAPIView):
     """
-    View to update the password of the authenticated user.
-
-    The user must provide their current password to update to a new password.
+    Update the authenticated user's password.
     """
 
     permission_classes = [IsAuthenticated]
@@ -162,3 +161,61 @@ class UpdateUserPasswordView(generics.UpdateAPIView):
         return Response(
             {"message": "Password updated successfully"}, status=status.HTTP_200_OK
         )
+
+
+@country_list_docs
+class CountryListView(generics.ListAPIView):
+    """
+    Retrieve a list of countries.
+    """
+
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+    permission_classes = [AllowAny]
+    ordering = ["name"]
+    pagination_class = OptionalPagination
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    search_fields = ["name"]
+
+
+@city_list_docs
+class CityListView(generics.ListAPIView):
+    """
+    Retrieve a list of cities.
+    """
+
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [AllowAny]
+    ordering = ["name"]
+    pagination_class = OptionalPagination
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    search_fields = ["name"]
+
+
+@country_detail_docs
+class CountryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a country.
+    """
+
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+    permission_classes = [IsAdminUser]
+
+
+@city_detail_docs
+class CityDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a city.
+    """
+
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    permission_classes = [IsAdminUser]
