@@ -5,7 +5,7 @@ COMPOSE = docker compose
 API_SERVICE = api
 
 # Commands
-.PHONY: help up down build-start logs test shell lint format makemigrations migrate createsuperuser collectstatic populate_db clear_data
+.PHONY: help up down build-start logs test shell lint lint-check format format-check sort sort-check makemigrations migrate createsuperuser populate_db clear_data
 .DEFAULT_GOAL := help
 
 help:
@@ -36,17 +36,29 @@ test: ## Run tests in parallel
 	@echo "Running tests..."
 	$(COMPOSE) exec $(API_SERVICE) python -m pytest -n auto
 
-lint: ## Run lint check
+lint-check: ## Run lint check
 	@echo "Running pylint..."
 	$(COMPOSE) exec $(API_SERVICE) pylint --fail-under=8.0 JobApp JobMarket2
 
-sort: ## Run sorting check
+lint: ## Run lint and attempt to fix issues
+	@echo "Running pylint..."
+	$(COMPOSE) exec $(API_SERVICE) ruff check JobApp JobMarket2 --fix
+
+sort-check: ## Run sorting check
 	@echo "Running Sort..."
 	$(COMPOSE) exec $(API_SERVICE) isort -c JobApp JobMarket2
 
-format: ## Run formatter check
+sort: ## Run sorting
+	@echo "Running Sort..."
+	$(COMPOSE) exec $(API_SERVICE) isort JobApp JobMarket2
+
+format-check: ## Run formatter check
 	@echo "Running formatter..."
 	$(COMPOSE) exec $(API_SERVICE) black JobMarket2 JobApp --check
+
+format: ## Run formatter
+	@echo "Running formatter..."
+	$(COMPOSE) exec $(API_SERVICE) black JobMarket2 JobApp
 
 makemigrations: ## Create new database migrations
 	@echo "Creating new migrations..."
