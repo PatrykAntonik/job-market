@@ -8,13 +8,6 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = BASE_DIR / ".env"
-if env_path.exists():
-    try:
-        from dotenv import load_dotenv
-
-        load_dotenv(env_path)
-    except ImportError:
-        pass
 
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")

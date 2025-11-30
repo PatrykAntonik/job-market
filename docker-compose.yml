@@ -37,11 +37,11 @@ services:
         python manage.py createsuperuser --noinput || true &&
         echo "" &&
         echo "====================================" &&
-        echo " ✅ Admin credentials:" &&
+        echo "Admin credentials:" &&
         echo "    Email:    admin@example.com" &&
         echo "    Password: 123" &&
         echo "" &&
-        echo " ✅ Open in browser: http://localhost:8000" &&
+        echo "Open in browser: http://localhost:8000" &&
         echo "====================================" &&
         echo "" &&
         python manage.py runserver 0.0.0.0:8000
