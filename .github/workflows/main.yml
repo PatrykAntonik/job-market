@@ -54,7 +54,7 @@ jobs:
         run: |
           docker run -d \
           --name ${{ vars.IMAGE_NAME }} \
-          --network host
+          --network host \
           --health-cmd "curl -f http://localhost:8080/health/" \
           --health-interval 5s \
           --health-timeout 3s \
