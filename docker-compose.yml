@@ -16,7 +16,6 @@ services:
       - .:/app
     ports:
       - "8000:8000"
-    image: job-market-image
     container_name: job-market
     env_file:
       - .env
