@@ -14,6 +14,11 @@ on:
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
+env:
+  DOCKER_BUILDKIT: 1
+  DOCKER_BUILDKIT_PROGRESS: plain
+  COMPOSE_DOCKER_CLI_BUILD: 1
+  DOCKER_REPO_NAME: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.IMAGE_NAME }}
 jobs:
   test:
     if: ${{ !github.event.inputs.skip_lint }}
