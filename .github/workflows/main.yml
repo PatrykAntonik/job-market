@@ -1,5 +1,5 @@
 name: CI/CD pipeline for main branch
-run-name: ${{ github.actor }}
+run-name: ${{ github.event.pull_request.title }}
 on:
   pull_request:
     branches:
