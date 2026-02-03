@@ -18,10 +18,6 @@ on:
         required: false
         default: "ci"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   quality-gates:
     name: Lint, test, container health
