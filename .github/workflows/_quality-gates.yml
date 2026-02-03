@@ -58,7 +58,9 @@ jobs:
         run: python -m pip install --upgrade pip pipx
 
       - name: Install Poetry
-        run: pipx install poetry
+        run: |
+          pipx install poetry
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Configure Poetry venv
         run: |
