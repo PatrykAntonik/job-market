@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report
-- Version change: N/A (template) -> 1.0.0
+- Version change: 1.0.0 -> 1.0.1
 - Modified principles (template placeholders -> concrete principles):
   - Principle 1 -> I. Safety: No File Deletions Without Explicit Approval
   - Principle 2 -> II. Kubernetes-First Runtime (Minikube)
   - Principle 3 -> III. Django/DRF Conventions and Project Layout
-  - Principle 4 -> IV. Quality Gates: Format, Lint, Tests, Migrations
+  - Principle 4 -> IV. Quality Gates: Format, Lint, Tests, Migrations (CI runs direct Poetry commands; Makefile is optional wrapper)
   - Principle 5 -> V. Security and Configuration Hygiene
 - Added sections:
   - Runtime & Deployment
@@ -53,9 +53,13 @@ Rationale: Consistent structure reduces onboarding time and keeps changes easy t
 
 ### IV. Quality Gates: Format, Lint, Tests, Migrations
 - Code MUST target Python 3.12 and follow 4-space indentation.
-- Before merging, changes MUST pass formatting and linting (`poetry run ruff format`, `make lint`).
-- Behavioral changes MUST include tests (pytest) and MUST pass (`make test` in container, or pytest
-  locally when appropriate).
+- Before merging, changes MUST pass formatting and linting checks (CI SHOULD run check-only commands):
+  - `poetry run black JobMarket2 JobApp --check`
+  - `poetry run isort -c JobApp JobMarket2`
+  - `poetry run pylint --fail-under=8.0 JobApp JobMarket2`
+- Behavioral changes MUST include tests (pytest) and MUST pass:
+  - `poetry run pytest -n auto` (CI/local)
+  - `make test` MAY be used as a local convenience wrapper
 - Any schema change MUST include committed Django migrations and MUST be applied in dev/test.
 Rationale: Quality gates prevent regressions and keep codebase health predictable over time.
 
@@ -98,4 +102,4 @@ Rationale: Prevent credential leakage and make security-relevant changes reviewa
     - PATCH: clarifications/typos/non-semantic refinements.
 - Destructive actions policy: file deletions require explicit, separate approval (see Principle I).
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-30 | **Last Amended**: 2026-01-30
+**Version**: 1.0.1 | **Ratified**: 2026-01-30 | **Last Amended**: 2026-02-02
