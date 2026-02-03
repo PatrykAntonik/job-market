@@ -1,106 +1,96 @@
 name: CI/CD pipeline for main branch
-run-name: ${{ github.event.pull_request.title }}
+run-name: ${{ github.event_name == 'pull_request' && github.event.pull_request.title || github.sha }}
 on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      skip_lint:
-        description: "Skip lint stage"
-        type: boolean
-        required: false
-        default: false
+    paths-ignore:
+      - README.md
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - README.md
+  workflow_dispatch: { }
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_BUILDKIT_PROGRESS: plain
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_REPO_NAME: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.IMAGE_NAME }}
 jobs:
-  test:
-    if: ${{ !github.event.inputs.skip_lint }}
-    name: Health check
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: jobmarket
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d jobmarket"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jobmarket?sslmode=disable
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          target: runner
-          tags: |
-            ${{ vars.IMAGE_NAME }}:latest
-          cache-from: type=gha,scope=prod
-          cache-to: type=gha,mode=max,scope=prod
-      - name: Run container
-        run: |
-          docker run -d \
-          --name ${{ vars.IMAGE_NAME }} \
-          --network host \
-          --health-cmd "curl -f http://localhost:8080/health/" \
-          --health-interval 5s \
-          --health-timeout 3s \
-          --health-retries 5 \
-          -e "DATABASE_URL=${{ env.DATABASE_URL }}" \
-          -e "DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1" \
-          ${{ vars.IMAGE_NAME }}:latest
-      - name: Check container health
-        run: |
-          for i in {1..15}; do
-            STATUS=$(docker inspect --format='{{json .State.Health.Status}}' ${{ vars.IMAGE_NAME }})
-            if [ "$STATUS" = "\"healthy\"" ]; then
-              exit 0
-            fi
-            sleep 3
-          done
-          echo "API failed to start"
-          docker logs ${{ vars.IMAGE_NAME }}
-          exit 1
-      - name: Stop container
-        if: always()
-        run: docker rm -f ${{ vars.IMAGE_NAME }}
-  build:
-    name: Build image and push to Docker Hub
-    needs: test
-    runs-on: ubuntu-latest
+  quality-gates:
+    uses: ./.github/workflows/_quality-gates.yml
+    with:
+      docker-target: runner
+      image-name: ${{ vars.IMAGE_NAME }}
+      cache-scope: prod
+
+  sonarqube:
+    name: SonarCloud scan
+    needs: quality-gates
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
-      packages: write
+    if: >-
+      ${{
+        github.event_name == 'push' ||
+        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+      }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Run SonarCloud scan
+        uses: SonarSource/sonarcloud-github-action@383f7e52eae3ab0510c3cb0e7d9d150bbaeab838 # v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+
+  snyk:
+    name: Snyk scan
+    needs: quality-gates
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    if: >-
+      ${{
+        github.event_name == 'push' ||
+        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+      }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Run Snyk (Python)
+        uses: snyk/actions/python@9adf32b1121593767fc3c057af55b55db032dc04 # master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  build:
+    name: Build image and push to Docker Hub
+    needs:
+      - quality-gates
+      - sonarqube
+      - snyk
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
           context: .
           target: runner
