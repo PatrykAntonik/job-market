@@ -10,6 +10,7 @@ from JobApp.serializers import (
     JobOfferCreateSerializer,
     JobOfferSerializer,
     JobOfferUpdateSerializer,
+    OfferResponseSerializer,
     SkillSerializer,
 )
 
@@ -87,5 +88,30 @@ employer_job_offer_list_docs = extend_schema(
     summary="List all job offers for a specific employer",
     description="Returns a list of all job offers for a specific employer.",
     responses={200: JobOfferSerializer(many=True)},
+    tags=["Jobs"],
+)
+
+apply_to_job_offer_docs = extend_schema(
+    summary="Apply to a job offer",
+    description="Creates an application (OfferResponse) for the authenticated candidate.",
+    responses={
+        201: OfferResponseSerializer,
+        400: {"description": "Bad request / already applied"},
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden (candidates only)"},
+        404: {"description": "Job offer not found"},
+    },
+    tags=["Jobs"],
+)
+
+job_offer_applicants_docs = extend_schema(
+    summary="List applicants for an employer job offer",
+    description="Returns applications (OfferResponse) for the authenticated employer's job offer.",
+    responses={
+        200: OfferResponseSerializer(many=True),
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden (employers only)"},
+        404: {"description": "Job offer not found"},
+    },
     tags=["Jobs"],
 )
