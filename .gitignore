@@ -32,6 +32,7 @@ Secret.yaml
 
 AGENTS.md
 GEMINI.md
+CLAUDE.md
 
 pytest-report.html
 
@@ -39,3 +40,4 @@ pytest-report.html
 
 # Load test secrets / local data (do not commit credentials)
 load_tests/data/
+load_tests/results/
