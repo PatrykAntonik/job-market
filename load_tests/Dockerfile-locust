@@ -7,12 +7,16 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir --upgrade pip
 
-COPY load_tests/requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN pip install --no-cache-dir poetry
+
+COPY pyproject.toml /app/pyproject.toml
+COPY poetry.lock /app/poetry.lock
+
+RUN poetry config virtualenvs.create false \
+  && poetry install --only load-testing --no-root
 
 COPY load_tests/ /app/load_tests/
 
 EXPOSE 8089
 
-# Default: web UI on 8089. Override/extend with docker args if needed.
 ENTRYPOINT ["locust", "-f", "load_tests/locustfile.py"]

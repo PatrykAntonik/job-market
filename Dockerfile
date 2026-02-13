@@ -31,7 +31,8 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["gunicorn","JobMarket2.wsgi:application","--bind","0.0.0.0:8080"]
+ENTRYPOINT ["gunicorn", "JobMarket2.wsgi:application", "--bind", "0.0.0.0:8080"]
+CMD ["--workers", "2", "--threads", "4", "--worker-class", "gthread", "--timeout", "30"]
 
 FROM python:3.12-slim AS dev-builder
 

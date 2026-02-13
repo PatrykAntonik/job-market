@@ -503,6 +503,16 @@ class OfferResponseSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class OfferResponseCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating OfferResponse instances.
+    """
+
+    class Meta:
+        model = OfferResponse
+        fields = ["offer"]
+
+
 class EmployerLocationSerializer(serializers.ModelSerializer):
     """
     Serializer for the EmployerLocation model.

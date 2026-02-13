@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from JobApp.models import (
+    Candidate,
     City,
     Country,
     Employer,
@@ -10,6 +11,7 @@ from JobApp.models import (
     Industry,
     JobOffer,
     JobOfferSkill,
+    OfferResponse,
     Skill,
     User,
 )
@@ -30,11 +32,13 @@ def common_data():
     user = User.objects.create_user(
         email="employer@example.com",
         password="password123",
+        phone_number="5100000000",
         city=city,
     )
     employer = Employer.objects.create(
         user=user,
         company_name="Employer Inc",
+        website_url="https://employer.example.com",
         industry=industry,
     )
     location = EmployerLocation.objects.create(employer=employer, city=city)
@@ -49,6 +53,19 @@ def common_data():
     )
     JobOfferSkill.objects.create(offer=job_offer, skill=skill)
     return employer, user, industry, city, country, location, job_offer, skill
+
+
+@pytest.fixture
+def candidate_data(common_data):
+    _, _, _, city, _, _, _, _ = common_data
+    user = User.objects.create_user(
+        email="candidate@example.com",
+        password="password123",
+        phone_number="5100000001",
+        city=city,
+    )
+    candidate = Candidate.objects.create(user=user, about="Test candidate")
+    return candidate, user
 
 
 @pytest.mark.django_db
@@ -202,3 +219,109 @@ class TestJobOfferProfileDetailView:
         response = api_client.delete(f"/api/jobs/profile/{job_offer.id}/")
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not JobOffer.objects.filter(id=job_offer.id).exists()
+
+
+@pytest.mark.django_db
+class TestApplyToJobOfferView:
+    def test_apply_success(self, api_client, common_data, candidate_data):
+        _, _, _, _, _, _, job_offer, _ = common_data
+        candidate, user = candidate_data
+        api_client.force_authenticate(user=user)
+
+        response = api_client.post(
+            f"/api/jobs/{job_offer.id}/apply/", {}, format="json"
+        )
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert OfferResponse.objects.filter(
+            offer=job_offer, candidate=candidate
+        ).exists()
+        assert response.data["offer"]["id"] == job_offer.id
+        assert response.data["candidate"]["id"] == candidate.id
+
+    def test_apply_duplicate_returns_400(self, api_client, common_data, candidate_data):
+        _, _, _, _, _, _, job_offer, _ = common_data
+        candidate, user = candidate_data
+        OfferResponse.objects.create(offer=job_offer, candidate=candidate)
+        api_client.force_authenticate(user=user)
+
+        response = api_client.post(
+            f"/api/jobs/{job_offer.id}/apply/", {}, format="json"
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_apply_unauthorized(self, api_client, common_data):
+        _, _, _, _, _, _, job_offer, _ = common_data
+        response = api_client.post(
+            f"/api/jobs/{job_offer.id}/apply/", {}, format="json"
+        )
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_apply_as_employer_forbidden(self, api_client, common_data):
+        _, employer_user, _, _, _, _, job_offer, _ = common_data
+        api_client.force_authenticate(user=employer_user)
+        response = api_client.post(
+            f"/api/jobs/{job_offer.id}/apply/", {}, format="json"
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_apply_offer_not_found(self, api_client, candidate_data):
+        _, user = candidate_data
+        api_client.force_authenticate(user=user)
+        response = api_client.post("/api/jobs/999999/apply/", {}, format="json")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+class TestJobOfferApplicantsListView:
+    def test_list_applicants_success(self, api_client, common_data, candidate_data):
+        employer, employer_user, _, _, _, _, job_offer, _ = common_data
+        candidate, _ = candidate_data
+        OfferResponse.objects.create(offer=job_offer, candidate=candidate)
+
+        api_client.force_authenticate(user=employer_user)
+        response = api_client.get(f"/api/jobs/profile/{job_offer.id}/applicants/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 1
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["offer"]["id"] == job_offer.id
+        assert response.data["results"][0]["candidate"]["id"] == candidate.id
+
+    def test_list_applicants_for_other_employer_offer_404(
+        self, api_client, common_data, candidate_data
+    ):
+        _, employer_user, _, city, _, _, job_offer, _ = common_data
+        candidate, _ = candidate_data
+        OfferResponse.objects.create(offer=job_offer, candidate=candidate)
+
+        other_user = User.objects.create_user(
+            email="other_employer@example.com",
+            password="password123",
+            phone_number="5100000002",
+            city=city,
+        )
+        other_employer = Employer.objects.create(
+            user=other_user,
+            company_name="Other Employer Inc",
+            website_url="https://other-employer.example.com",
+            industry=common_data[2],
+        )
+        api_client.force_authenticate(user=other_user)
+
+        response = api_client.get(f"/api/jobs/profile/{job_offer.id}/applicants/")
+
+        # Must not leak existence of offers belonging to other employers.
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_list_applicants_as_candidate_forbidden(
+        self, api_client, common_data, candidate_data
+    ):
+        _, _, _, _, _, _, job_offer, _ = common_data
+        _, candidate_user = candidate_data
+        api_client.force_authenticate(user=candidate_user)
+
+        response = api_client.get(f"/api/jobs/profile/{job_offer.id}/applicants/")
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN

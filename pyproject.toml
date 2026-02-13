@@ -41,6 +41,10 @@ dependencies = [
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.coverage.run]
+source = ["JobApp", "JobMarket2"]
+relative_files = true
+
 [tool.ruff]
 target-version = "py312"
 exclude = [
@@ -85,3 +89,5 @@ pytest-html = "^4.1.1"
 
 [tool.poetry.group.load-testing.dependencies]
 locust = "^2.41.5"
+faker = "^37.5.3"
+python-dotenv = "^1.1.1"

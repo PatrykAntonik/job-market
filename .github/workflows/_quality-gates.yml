@@ -76,7 +76,14 @@ jobs:
         run: poetry run pylint --fail-under=8.0 JobApp JobMarket2
 
       - name: Run tests (pytest)
-        run: poetry run pytest -n auto
+        run: poetry run pytest -n auto --cov=JobApp --cov=JobMarket2 --cov-report=xml:coverage.xml
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-report
+          path: coverage.xml
 
       - name: Setup docker buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3

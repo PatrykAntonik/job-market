@@ -1,24 +1,28 @@
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics
+from rest_framework import filters, generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from JobApp.filters import JobOfferFilter
-from JobApp.models import Employer, Industry, JobOffer, Skill
+from JobApp.models import Candidate, Employer, Industry, JobOffer, OfferResponse, Skill
 from JobApp.pagination import OptionalPagination
+from JobApp.permissions import IsCandidate, IsEmployer
 from JobApp.serializers import (
     ChoiceSerializer,
     IndustrySerializer,
     JobOfferCreateSerializer,
     JobOfferSerializer,
     JobOfferUpdateSerializer,
+    OfferResponseSerializer,
     SkillSerializer,
 )
 from docs.job_docs import (
+    apply_to_job_offer_docs,
     contract_type_list_docs,
     employer_job_offer_list_docs,
     industry_list_docs,
+    job_offer_applicants_docs,
     job_offer_detail_docs,
     job_offer_list_docs,
     job_offer_list_profile_docs,
@@ -219,3 +223,55 @@ class EmployerJobOfferListView(generics.ListAPIView):
     def get_queryset(self):
         employer = get_object_or_404(Employer, pk=self.kwargs["pk"])
         return JobOffer.objects.filter(employer=employer)
+
+
+@apply_to_job_offer_docs
+class ApplyToJobOfferView(generics.CreateAPIView):
+    """
+    Create an OfferResponse (apply) for the authenticated candidate.
+    """
+
+    permission_classes = [IsAuthenticated, IsCandidate]
+    serializer_class = OfferResponseSerializer
+
+    def create(self, request, *args, **kwargs):
+        job_offer = get_object_or_404(JobOffer, pk=self.kwargs["pk"])
+        candidate = get_object_or_404(Candidate, user=request.user)
+
+        if OfferResponse.objects.filter(offer=job_offer, candidate=candidate).exists():
+            return Response(
+                {"detail": "You have already applied to this job offer."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        offer_response = OfferResponse.objects.create(
+            offer=job_offer,
+            candidate=candidate,
+        )
+        return Response(
+            OfferResponseSerializer(
+                offer_response,
+                context={"request": request},
+            ).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+@job_offer_applicants_docs
+class JobOfferApplicantsListView(generics.ListAPIView):
+    """
+    List OfferResponse (applicants) for an authenticated employer's job offer.
+    """
+
+    permission_classes = [IsAuthenticated, IsEmployer]
+    serializer_class = OfferResponseSerializer
+    pagination_class = OptionalPagination
+
+    def get_queryset(self):
+        employer = get_object_or_404(Employer, user=self.request.user)
+        job_offer = get_object_or_404(
+            JobOffer,
+            pk=self.kwargs["pk"],
+            employer=employer,
+        )
+        return OfferResponse.objects.filter(offer=job_offer).order_by("id")
