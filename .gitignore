@@ -46,3 +46,4 @@ load_tests/data/
 load_tests/results/
 
 .coverage
+coverage.xml
