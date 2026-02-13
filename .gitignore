@@ -44,3 +44,5 @@ specs
 # Load test secrets / local data (do not commit credentials)
 load_tests/data/
 load_tests/results/
+
+.coverage
