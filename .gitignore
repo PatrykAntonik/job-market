@@ -37,6 +37,8 @@ CLAUDE.md
 pytest-report.html
 
 .codex
+.claude
+claude
 specs
 
 # Load test secrets / local data (do not commit credentials)

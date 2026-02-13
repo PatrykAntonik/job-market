@@ -1,23 +1,26 @@
 from __future__ import annotations
 
+import logging
 import random
 from typing import Any, Dict, List, Optional
 
 from load_tests.config import CONFIG, FAKER
-from load_tests.http_utils import coerce_list_payload
-from load_tests.journeys.common import optional_get
+from load_tests.http_utils import coerce_list_payload, pick_first_int_id
 from load_tests.reference_data import (
     get_contract_type_choices,
     get_remoteness_choices,
     get_seniority_choices,
     get_skills,
-    pick_choice_value,
-    pick_first_int_id,
+    random_choice_value,
+    random_int_id,
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 def _pick_skill_ids(user, *, max_count: int = 3) -> List[int]:
-    skills = get_skills(user.client, name=user._name("jobs.skills"))
+    skills = get_skills(user, name=user._name("ref.skills"))
     ids: List[int] = []
     for item in skills:
         val = item.get("id")
@@ -26,24 +29,30 @@ def _pick_skill_ids(user, *, max_count: int = 3) -> List[int]:
     if not ids:
         return []
     count = min(max_count, len(ids))
-    if count <= 0:
-        return []
     return random.sample(ids, k=count)
 
 
 def _create_offer(user, *, location_id: int) -> Optional[int]:
-    remoteness = pick_choice_value(
-        get_remoteness_choices(user.client, name=user._name("jobs.remoteness_levels"))
+    remoteness = random_choice_value(
+        get_remoteness_choices(user, name=user._name("jobs.remoteness_levels"))
     )
-    seniority = pick_choice_value(
-        get_seniority_choices(user.client, name=user._name("jobs.seniority"))
+    seniority = random_choice_value(
+        get_seniority_choices(user, name=user._name("jobs.seniority"))
     )
-    contract = pick_choice_value(
-        get_contract_type_choices(user.client, name=user._name("jobs.contract_types"))
+    contract = random_choice_value(
+        get_contract_type_choices(user, name=user._name("jobs.contract_types"))
     )
     skill_ids = _pick_skill_ids(user, max_count=3)
 
     if not (remoteness and seniority and contract and skill_ids):
+        logger.warning(
+            "Skipping offer creation: missing reference data "
+            "(remoteness=%s, seniority=%s, contract=%s, skills=%d)",
+            remoteness,
+            seniority,
+            contract,
+            len(skill_ids),
+        )
         return None
 
     payload: Dict[str, Any] = {
@@ -68,34 +77,32 @@ def _create_offer(user, *, location_id: int) -> Optional[int]:
 
 
 def run_employer_jobs(user, *, location_id: Optional[int]) -> None:
-    # Own offers list (profile)
-    offers_res = optional_get(
-        user,
+    # Own offers list
+    offers_res = user.api_get(
         "/api/jobs/profile/",
         name="jobs.profile.list",
         params={"page": 1},
     )
-    if offers_res is None:
-        offers = []
+    if offers_res.status_code == 200:
+        offers = coerce_list_payload(user.api_json(offers_res))
     else:
-        offers = (
-            coerce_list_payload(user.api_json(offers_res))
-            if offers_res.status_code == 200
-            else []
-        )
-    existing_offer_id = pick_first_int_id(offers) or None
+        offers = []
+    existing_offer_id = pick_first_int_id(offers)
 
-    # Create offers if possible
-    if location_id:
+    # Create offers if location is available
+    if location_id is not None:
         for _ in range(max(0, CONFIG.employer_offers_per_journey)):
             created_id = _create_offer(user, location_id=location_id)
             if created_id:
                 existing_offer_id = created_id
+    else:
+        logger.warning(
+            "Skipping offer creation: location_id is None (location fetch/create failed)"
+        )
 
-    # Applicants view (still valid even if empty)
+    # Applicants view
     if existing_offer_id:
-        optional_get(
-            user,
+        user.api_get(
             f"/api/jobs/profile/{existing_offer_id}/applicants/",
             name="jobs.profile.applicants",
             params={"page": 1},

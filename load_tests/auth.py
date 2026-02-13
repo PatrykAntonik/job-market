@@ -51,7 +51,7 @@ def _persona_prefix_from_request_name(request_name: str) -> Optional[str]:
 
 
 def register_candidate(
-    client, *, faker: Faker = FAKER, request_name: str = "candidate.register"
+    user, *, faker: Faker = FAKER, request_name: str = "candidate.register"
 ) -> Tuple[str, str, Tokens]:
     persona_prefix = _persona_prefix_from_request_name(request_name)
     cities_ref_name = (
@@ -62,12 +62,12 @@ def register_candidate(
     )
 
     # Discovery (often done on onboarding forms)
-    get_countries(client, name=countries_ref_name)
+    get_countries(user, name=countries_ref_name)
 
     if CONFIG.default_city_id is not None:
         city_id = CONFIG.default_city_id
     else:
-        cities = get_cities(client, name=cities_ref_name)
+        cities = get_cities(user, name=cities_ref_name)
         city_id = cities[0]["id"] if cities else None
     if city_id is None:
         raise RuntimeError(
@@ -87,7 +87,7 @@ def register_candidate(
     payload["city"] = city_id
 
     res = request(
-        client,
+        user.client,
         "POST",
         "/api/candidates/register/",
         json=payload,
@@ -101,7 +101,7 @@ def register_candidate(
 
 
 def register_employer(
-    client, *, faker: Faker = FAKER, request_name: str = "employer.register"
+    user, *, faker: Faker = FAKER, request_name: str = "employer.register"
 ) -> Tuple[str, str, Tokens]:
     persona_prefix = _persona_prefix_from_request_name(request_name)
     cities_ref_name = (
@@ -115,12 +115,12 @@ def register_employer(
     )
 
     # Discovery (often done on onboarding forms)
-    get_countries(client, name=countries_ref_name)
+    get_countries(user, name=countries_ref_name)
 
     if CONFIG.default_city_id is not None:
         city_id = CONFIG.default_city_id
     else:
-        cities = get_cities(client, name=cities_ref_name)
+        cities = get_cities(user, name=cities_ref_name)
         city_id = cities[0]["id"] if cities else None
     if city_id is None:
         raise RuntimeError(
@@ -130,7 +130,7 @@ def register_employer(
     if CONFIG.default_industry_id is not None:
         industry_id = CONFIG.default_industry_id
     else:
-        industries = get_industries(client, name=industries_ref_name)
+        industries = get_industries(user, name=industries_ref_name)
         industry_id = industries[0]["id"] if industries else None
     if industry_id is None:
         raise RuntimeError(
@@ -154,7 +154,7 @@ def register_employer(
     }
 
     res = request(
-        client,
+        user.client,
         "POST",
         "/api/employers/register/",
         json=payload,

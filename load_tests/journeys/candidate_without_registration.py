@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from load_tests.journeys.candidate_jobs import run_candidate_jobs
-from load_tests.journeys.candidate_profile import run_candidate_profile
 
 
 def run_candidate_without_registration(user) -> None:
-    run_candidate_profile(user)
+    # Phase 1: Profile check (read-only, no creation)
+    user.api_get("/api/candidates/profile/", name="candidates.profile.get")
+    # Phase 2: Job browsing and applying
     run_candidate_jobs(user)

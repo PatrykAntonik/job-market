@@ -31,6 +31,8 @@ class BaseJobMarketUser(HttpUser):
     _auth: Optional[SessionAuth] = None
 
     def on_start(self):
+        self._ref_cache = {}
+
         # Host can be provided via LOCUST_HOST or via CLI; enforce at least one.
         if not (self.host or CONFIG.host):
             raise RuntimeError("Missing LOCUST_HOST (or --host)")
@@ -54,12 +56,12 @@ class BaseJobMarketUser(HttpUser):
     def _register(self) -> SessionAuth:
         if self.role == "candidate":
             email, password, tokens = register_candidate(
-                self.client,
+                self,
                 request_name=self._name("candidates.register"),
             )
         elif self.role == "employer":
             email, password, tokens = register_employer(
-                self.client,
+                self,
                 request_name=self._name("employers.register"),
             )
         else:
